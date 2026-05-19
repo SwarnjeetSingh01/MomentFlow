@@ -510,14 +510,31 @@ const AGENT_META = [
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Trim previous-agent output to avoid inflating input tokens.
+// Agent 03 only needs Agent 02's recommendation section (bottom of output).
+const trimContext = (text, maxChars) =>
+  text.length <= maxChars ? text : "[...trimmed for token efficiency...]\n" + text.slice(-maxChars);
+
 async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
-  const prompt = buildPrompt(agentId, niche, location, prevOutput);
-  // Agent 01 uses Anthropic web_search tool; Agents 02-04 use no tools
+  // Smart context: pass full output to Agent 02 (needs all data),
+  // trim to last 1800 chars for Agent 03 (recommendation section is at the bottom),
+  // Agent 04 gets full script (it's short anyway).
+  const ctx = agentId === 3 ? trimContext(prevOutput, 1800) : prevOutput;
+  const prompt = buildPrompt(agentId, niche, location, ctx);
+
+  // Model routing:
+  // Agent 01 → claude-sonnet-4-20250514 (required for reliable web search)
+  // Agents 02–04 → claude-3-5-haiku-20241022 (4× cheaper, excellent at structured tasks)
   const useSearch = agentId === 1;
+  const model = agentId === 1
+    ? "claude-sonnet-4-20250514"
+    : "claude-3-5-haiku-20241022";
+  // Tiered max_tokens: Sonnet needs space for web content; Haiku is concise by nature
+  const maxTokens = agentId === 1 ? 1800 : 1200;
 
   const body = {
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 1800,
+    model,
+    max_tokens: maxTokens,
     ...(useSearch ? { tools: [{ type: "web_search_20250305", name: "web_search" }] } : {}),
     messages: [{ role: "user", content: prompt }],
   };
