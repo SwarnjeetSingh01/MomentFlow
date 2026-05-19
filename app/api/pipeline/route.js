@@ -1,15 +1,17 @@
-// app/api/pipeline/route.js  — Next.js App Router proxy → OpenAI
+// app/api/pipeline/route.js  — Next.js App Router proxy → Anthropic
 export const runtime = "nodejs";
 
 export async function POST(request) {
   try {
     const body = await request.json();
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY || ""}`,
+        "x-api-key": process.env.ANTHROPIC_API_KEY || "",
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": "web-search-2025-03-05",
       },
       body: JSON.stringify(body),
     });

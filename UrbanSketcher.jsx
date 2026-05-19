@@ -521,13 +521,13 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
   const prompt = buildPrompt(agentId, niche, location, prevOutput);
-  // Agent 01 uses gpt-4o-search-preview (native web search built-in, no tools param needed)
-  // Agents 02-04 use gpt-4o
-  const model = agentId === 1 ? "gpt-4o-search-preview" : "gpt-4o";
+  // Agent 01 uses Anthropic web_search tool; Agents 02-04 use no tools
+  const useSearch = agentId === 1;
 
   const body = {
-    model,
+    model: "claude-sonnet-4-20250514",
     max_tokens: 3500,
+    ...(useSearch ? { tools: [{ type: "web_search_20250305", name: "web_search" }] } : {}),
     messages: [{ role: "user", content: prompt }],
   };
 
@@ -554,8 +554,11 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
       }
 
       const data = await res.json();
-      // OpenAI Chat Completions response format
-      const text = data.choices?.[0]?.message?.content || "";
+      // Anthropic Messages API — collect ALL text content blocks
+      const text = (data.content || [])
+        .filter((b) => b.type === "text")
+        .map((b) => b.text)
+        .join("\n\n");
 
       if (!text) throw new Error("No text content in response");
       return text;
