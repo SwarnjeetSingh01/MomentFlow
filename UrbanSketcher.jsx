@@ -273,20 +273,11 @@ body::before{
 
 /* ─── PROMPTS ─────────────────────────────────────────────────────── */
 
-// Creator profile context injected into every agent
+// Creator profile context injected into every agent (kept short to stay under rate limits)
 const CREATOR_CONTEXT = `
-CREATOR PROFILE (write for this specific account):
-  Handle: @usknagpur — Urban Sketchers Nagpur (Instagram)
-  Followers: 3,825 | Posts: 1,012 | Following: 144
-  Bio: "Capturing our city, one sketch at a time."
-  Current avg reel views: ~3,500 (peak: 7,016 on a large community event reel)
-  Content gap: Account posts almost exclusively event documentation and group photos.
-    Zero tutorial, process, or tips-based reels despite being an active sketching community.
-  Growth goal: Break out of the follower bubble. Target non-follower reach.
-    Current views ≈ follower count — content is not being distributed beyond existing audience.
-  What's working: Community events with 10+ people, location collabs, expedition reels.
-  City: Nagpur, India — known landmarks include Futala Lake, Sitabuldi Fort, Deekshabhoomi,
-    Nagpur Railway Station, Freemason's Hall, Dragon Palace Temple, Seminary Hills.
+ACCOUNT: @usknagpur — Urban Sketchers Nagpur | 3,825 followers | ~3,500 avg reel views
+GAP: Only event documentation posted — zero tutorials/tips/process reels.
+GOAL: Break follower bubble, grow non-follower reach. City: Nagpur, India.
 `;
 
 const buildPrompt = (agentId, niche, location, prevOutput) => {
@@ -526,7 +517,7 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
 
   const body = {
     model: "claude-sonnet-4-20250514",
-    max_tokens: 3500,
+    max_tokens: 1800,
     ...(useSearch ? { tools: [{ type: "web_search_20250305", name: "web_search" }] } : {}),
     messages: [{ role: "user", content: prompt }],
   };
@@ -601,6 +592,11 @@ export default function UrbanSketcher() {
 
     for (let i = 0; i < 4; i++) {
       const agentId = i + 1;
+      // 15s cooldown between agents to stay under 30k tokens/min rate limit
+      if (i > 0) {
+        setProgressLabel(`Agent ${agentId} of 4 starting in 15s…`);
+        await sleep(15000);
+      }
       const pct = Math.round((i / 4) * 100);
       setProgress(pct);
       setProgressLabel(`Agent ${agentId} of 4 running… ${pct}%`);
