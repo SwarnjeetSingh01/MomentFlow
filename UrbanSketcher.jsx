@@ -298,27 +298,28 @@ const buildPrompt = (agentId, niche, location, prevOutput) => {
 ${CREATOR_CONTEXT}
 ${locNote}
 
-TASK: Search the web and find the TOP 10 highest-performing posts about "${niche}" on YouTube and Instagram from the last 30 days (current date: ${new Date().toLocaleDateString('en-IN')}).
+Using your knowledge of social media content trends for art and urban sketching creators, identify the TOP 10 highest-performing content patterns on YouTube and Instagram for this niche.
 ${locSearch}
 
+Be specific and realistic. Reference real creator styles and formats you know work well.
+
 Produce a Markdown table:
-| # | Platform | Title / Caption | Est. Views | Engagement Rate | Hook Style | Format | Why It Works |
+| # | Platform | Title / Caption Pattern | Est. Views | Engagement Rate | Hook Style | Format | Why It Works |
 
 Hook Style: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | ASPIRATIONAL | NUMBER/LIST
 Format: Reel | YouTube Short | YouTube Long-form | Tutorial | Time-lapse | POV | Carousel
 List YouTube first, then Instagram, ordered by engagement rate descending.
-If a metric is unavailable, write N/A — never fabricate numbers.
 
 CONTENT GAP ALERT:
-Name ONE angle audiences want but very few creators are doing well right now.
+Name ONE angle audiences want but very few creators are doing well.
 
 NON-FOLLOWER REACH ANALYSIS:
-Name the #1 format pulling non-follower reach in this niche and why the algorithm distributes it.
+Name the #1 format pulling non-follower reach in this niche and why.
 
 VIRAL PICKS (top 3 to adapt for @usknagpur):
-1. [title] — [why it works for a Nagpur community account]
-2. [title] — [why it works for a Nagpur community account]
-3. [title] — [why it works for a Nagpur community account]`;
+1. [pattern] — [why it works for a Nagpur community account]
+2. [pattern] — [why it works for a Nagpur community account]
+3. [pattern] — [why it works for a Nagpur community account]`;
   }
 
   // ── AGENT 02 ────────────────────────────────────────────────────────
@@ -513,22 +514,14 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
   const ctx = agentId === 3 ? trimContext(prevOutput, 1800) : prevOutput;
   const prompt = buildPrompt(agentId, niche, location, ctx);
 
-  const isSearch = agentId === 1;
-  // Agent 01: OpenAI gpt-4o-search-preview (live web, single call, no token spike)
-  // Agents 02–04: Anthropic claude-sonnet-4-20250514 (structured analysis)
-  const endpoint = isSearch ? "/api/search" : "/api/pipeline";
-
-  const body = isSearch
-    ? {
-        model: "gpt-4o-search-preview",
-        max_tokens: 1800,
-        messages: [{ role: "user", content: prompt }],
-      }
-    : {
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1200,
-        messages: [{ role: "user", content: prompt }],
-      };
+  // All agents → Anthropic (OpenAI disabled — add credits at platform.openai.com/settings/billing
+  // then change endpoint to "/api/search" and model to "gpt-4o-search-preview" for Agent 01
+  // to get live 2026 web search results)
+  const body = {
+    model: "claude-sonnet-4-20250514",
+    max_tokens: agentId === 1 ? 1800 : 1200,
+    messages: [{ role: "user", content: prompt }],
+  };
 
   for (let attempt = 0; attempt < 3; attempt++) {
     if (attempt > 0) {
@@ -536,7 +529,7 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
       await sleep(1200 * attempt);
     }
     try {
-      const res = await fetch(endpoint, {
+      const res = await fetch("/api/pipeline", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -552,10 +545,10 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
       }
 
       const data = await res.json();
-      // OpenAI format for Agent 01, Anthropic format for Agents 02–04
-      const text = isSearch
-        ? (data.choices?.[0]?.message?.content || "")
-        : (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("\n\n");
+      const text = (data.content || [])
+        .filter((b) => b.type === "text")
+        .map((b) => b.text)
+        .join("\n\n");
 
       if (!text) throw new Error("No content in response");
       return text;
