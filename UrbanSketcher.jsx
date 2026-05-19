@@ -298,28 +298,27 @@ const buildPrompt = (agentId, niche, location, prevOutput) => {
 ${CREATOR_CONTEXT}
 ${locNote}
 
-Based on your knowledge of social media content trends for urban sketching creators, identify the TOP 10 highest-performing content patterns on YouTube and Instagram that are working RIGHT NOW for this niche.
+TASK: Search the web and find the TOP 10 highest-performing posts about "${niche}" on YouTube and Instagram from the last 30 days (current date: ${new Date().toLocaleDateString('en-IN')}).
 ${locSearch}
 
-IMPORTANT: Draw on your training knowledge of what content formats, hooks, and topics drive views and engagement for art/sketching creators. Be specific and realistic.
-
 Produce a Markdown table:
-| # | Platform | Content Type / Title Pattern | Est. Views Range | Engagement Rate | Hook Style | Format | Why It Works |
+| # | Platform | Title / Caption | Est. Views | Engagement Rate | Hook Style | Format | Why It Works |
 
-Hook Style must be one of: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | ASPIRATIONAL | NUMBER/LIST
-Format must be one of: Reel | YouTube Short | YouTube Long-form | Tutorial | Time-lapse | POV | Carousel
+Hook Style: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | ASPIRATIONAL | NUMBER/LIST
+Format: Reel | YouTube Short | YouTube Long-form | Tutorial | Time-lapse | POV | Carousel
 List YouTube first, then Instagram, ordered by engagement rate descending.
+If a metric is unavailable, write N/A — never fabricate numbers.
 
 CONTENT GAP ALERT:
-Name ONE angle in "${niche}" that audiences want (based on comments/search patterns) but very few creators are doing well.
+Name ONE angle audiences want but very few creators are doing well right now.
 
 NON-FOLLOWER REACH ANALYSIS:
-Name the #1 format currently pulling non-follower reach in this niche and why the algorithm distributes it.
+Name the #1 format pulling non-follower reach in this niche and why the algorithm distributes it.
 
 VIRAL PICKS (top 3 to adapt for @usknagpur):
-1. [content pattern] — [why it works for a Nagpur community account]
-2. [content pattern] — [why it works for a Nagpur community account]
-3. [content pattern] — [why it works for a Nagpur community account]`;
+1. [title] — [why it works for a Nagpur community account]
+2. [title] — [why it works for a Nagpur community account]
+3. [title] — [why it works for a Nagpur community account]`;
   }
 
   // ── AGENT 02 ────────────────────────────────────────────────────────
@@ -514,17 +513,22 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
   const ctx = agentId === 3 ? trimContext(prevOutput, 1800) : prevOutput;
   const prompt = buildPrompt(agentId, niche, location, ctx);
 
-  // No web search tools — eliminated to avoid token spikes from multi-round-trip searches
-  const useSearch = false;
-  const model = "claude-sonnet-4-20250514";
-  const maxTokens = agentId === 1 ? 1800 : 1200;
+  const isSearch = agentId === 1;
+  // Agent 01: OpenAI gpt-4o-search-preview (live web, single call, no token spike)
+  // Agents 02–04: Anthropic claude-sonnet-4-20250514 (structured analysis)
+  const endpoint = isSearch ? "/api/search" : "/api/pipeline";
 
-  const body = {
-    model,
-    max_tokens: maxTokens,
-    ...(useSearch ? { tools: [{ type: "web_search_20250305", name: "web_search" }] } : {}),
-    messages: [{ role: "user", content: prompt }],
-  };
+  const body = isSearch
+    ? {
+        model: "gpt-4o-search-preview",
+        max_tokens: 1800,
+        messages: [{ role: "user", content: prompt }],
+      }
+    : {
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1200,
+        messages: [{ role: "user", content: prompt }],
+      };
 
   for (let attempt = 0; attempt < 3; attempt++) {
     if (attempt > 0) {
@@ -532,7 +536,7 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
       await sleep(1200 * attempt);
     }
     try {
-      const res = await fetch("/api/pipeline", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -542,20 +546,18 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
         const data = await res.json();
         throw new Error(data?.error?.message || `HTTP ${res.status}`);
       }
-
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data?.error?.message || `HTTP ${res.status}`);
       }
 
       const data = await res.json();
-      // Anthropic Messages API — collect ALL text content blocks
-      const text = (data.content || [])
-        .filter((b) => b.type === "text")
-        .map((b) => b.text)
-        .join("\n\n");
+      // OpenAI format for Agent 01, Anthropic format for Agents 02–04
+      const text = isSearch
+        ? (data.choices?.[0]?.message?.content || "")
+        : (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("\n\n");
 
-      if (!text) throw new Error("No text content in response");
+      if (!text) throw new Error("No content in response");
       return text;
     } catch (err) {
       if (attempt === 2) throw err;
