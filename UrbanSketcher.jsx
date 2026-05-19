@@ -294,42 +294,32 @@ const buildPrompt = (agentId, niche, location, prevOutput) => {
       ? `Run an additional search specifically for "${niche}" + "${loc}" to find local or regional content patterns.`
       : "";
 
-    return `You are Agent 01 — Content Scout. Your job is to find real, trending content that @usknagpur can learn from and adapt.
-
+    return `You are Agent 01 — Content Scout for @usknagpur (Urban Sketchers Nagpur).
 ${CREATOR_CONTEXT}
 ${locNote}
 
-TASK: Use web search to find the TOP 10 highest-performing posts about "${niche}" on YouTube and Instagram from the last 7 days.
+Based on your knowledge of social media content trends for urban sketching creators, identify the TOP 10 highest-performing content patterns on YouTube and Instagram that are working RIGHT NOW for this niche.
 ${locSearch}
 
-CRITICAL DATA RULES:
-- Report ONLY data found through your web search. Do not estimate or fabricate metrics.
-- If a specific metric (e.g. exact view count) is unavailable, write "N/A" — never guess.
-- If fewer than 10 results exist, report what you found and note the gap.
+IMPORTANT: Draw on your training knowledge of what content formats, hooks, and topics drive views and engagement for art/sketching creators. Be specific and realistic.
 
-OUTPUT FORMAT — produce a Markdown table with these exact columns:
-| # | Platform | Title / Caption | Est. Views | Engagement Rate | Hook Style | Format | Why It's Trending |
+Produce a Markdown table:
+| # | Platform | Content Type / Title Pattern | Est. Views Range | Engagement Rate | Hook Style | Format | Why It Works |
 
-DEFINITIONS (use these exactly — do not invent new values):
-- Platform: YouTube or Instagram
-- Engagement Rate: (Likes + Comments + Saves) / Reach × 100. If unavailable, classify as: High (>5%), Medium (2–5%), Low (<2%)
-- Hook Style: must be ONE of: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | ASPIRATIONAL | NUMBER/LIST
-- Format: must be ONE of: Reel | YouTube Short | YouTube Long-form | Carousel | Tutorial | Time-lapse | POV | Vlog | Event Coverage
-
-List all YouTube results first, then Instagram, ordered by engagement rate descending within each platform.
-
-After the table, add these 3 sections:
+Hook Style must be one of: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | ASPIRATIONAL | NUMBER/LIST
+Format must be one of: Reel | YouTube Short | YouTube Long-form | Tutorial | Time-lapse | POV | Carousel
+List YouTube first, then Instagram, ordered by engagement rate descending.
 
 CONTENT GAP ALERT:
-Identify ONE angle or sub-topic in "${niche}" that appears in audience comments or search queries but has NO high-performing content in your results. This is the opportunity @usknagpur should move on first.
+Name ONE angle in "${niche}" that audiences want (based on comments/search patterns) but very few creators are doing well.
 
 NON-FOLLOWER REACH ANALYSIS:
-Based on what you found, name the #1 content format that is currently pulling in non-follower views for this niche, and explain why the algorithm is distributing it beyond existing audiences.
+Name the #1 format currently pulling non-follower reach in this niche and why the algorithm distributes it.
 
 VIRAL PICKS (top 3 to adapt for @usknagpur):
-1. [title] — [why this specific concept works for a Nagpur-based community account]
-2. [title] — [why this specific concept works for a Nagpur-based community account]
-3. [title] — [why this specific concept works for a Nagpur-based community account]`;
+1. [content pattern] — [why it works for a Nagpur community account]
+2. [content pattern] — [why it works for a Nagpur community account]
+3. [content pattern] — [why it works for a Nagpur community account]`;
   }
 
   // ── AGENT 02 ────────────────────────────────────────────────────────
@@ -524,9 +514,8 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
   const ctx = agentId === 3 ? trimContext(prevOutput, 1800) : prevOutput;
   const prompt = buildPrompt(agentId, niche, location, ctx);
 
-  // All agents use claude-sonnet-4-20250514 (Haiku not available on this plan)
-  // Credit savings come from tiered max_tokens + trimmed context + inter-agent delays
-  const useSearch = agentId === 1;
+  // No web search tools — eliminated to avoid token spikes from multi-round-trip searches
+  const useSearch = false;
   const model = "claude-sonnet-4-20250514";
   const maxTokens = agentId === 1 ? 1800 : 1200;
 
@@ -607,10 +596,10 @@ export default function UrbanSketcher() {
 
     for (let i = 0; i < 4; i++) {
       const agentId = i + 1;
-      // 15s cooldown between agents to stay under 30k tokens/min rate limit
+      // 25s cooldown between agents — keeps total input tokens well under 30k/min limit
       if (i > 0) {
-        setProgressLabel(`Agent ${agentId} of 4 starting in 15s…`);
-        await sleep(15000);
+        setProgressLabel(`Agent ${agentId} of 4 starting in 25s…`);
+        await sleep(25000);
       }
       const pct = Math.round((i / 4) * 100);
       setProgress(pct);
