@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap');`;
 
 const CSS = `
 ${FONTS}
@@ -13,7 +13,7 @@ ${FONTS}
   --green-light:#8aaa7a;--spiral:#b0a080;
 }
 body{
-  font-family:'Special Elite',cursive;
+  font-family:'Inter',sans-serif;
   background-color:var(--parchment);
   background-image:
     repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(180,160,120,.18) 28px),
@@ -104,9 +104,9 @@ body::before{
 .field-wrap{flex:1;min-width:200px;display:flex;flex-direction:column;gap:6px}
 .field-label{font-family:'Caveat',cursive;color:var(--brown-dark);font-size:1rem}
 .field-input{
-  font-family:'Special Elite',cursive;font-size:.95rem;
+  font-family:'Inter',sans-serif;font-size:.95rem;
   background:rgba(245,240,232,.8);border:1.5px solid var(--brown);
-  border-radius:3px;padding:10px 12px;color:#3a3020;
+  border-radius:3px;padding:10px 12px;color:#2a2015;
   transition:border-color .2s,box-shadow .2s;resize:none;
 }
 .field-input:focus{
@@ -121,7 +121,7 @@ body::before{
 }
 .run-btn{
   display:block;width:100%;margin-top:18px;padding:13px;
-  font-family:'Special Elite',cursive;font-size:1.05rem;
+  font-family:'Special Elite',cursive;font-size:1.05rem;letter-spacing:.03em;
   background:var(--green);color:#f5f0e8;
   border:none;border-radius:3px;cursor:pointer;
   transition:background .2s,transform .1s;
@@ -174,12 +174,12 @@ body::before{
   border:2.5px solid var(--green);outline:1.5px dashed var(--green);
   outline-offset:3px;color:var(--green);font-size:1.3rem;
 }
-.card-name{font-family:'Libre Baskerville',serif;font-size:1rem;color:#3a3020}
-.card-desc{font-family:'Caveat',cursive;font-size:.9rem;color:var(--brown-dark);margin-top:2px}
+.card-name{font-family:'Libre Baskerville',serif;font-size:1rem;color:#2a2015;font-weight:700}
+.card-desc{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--brown-dark);margin-top:3px}
 .card-right{display:flex;align-items:center;gap:8px}
 .badge{
-  font-family:'Caveat',cursive;font-size:.88rem;padding:3px 10px;
-  border-radius:20px;border:1px solid currentColor;
+  font-family:'Inter',sans-serif;font-size:.78rem;font-weight:500;
+  padding:3px 10px;border-radius:20px;border:1px solid currentColor;
 }
 .badge-idle{color:var(--brown-dark);border-color:var(--brown)}
 .badge-running{color:var(--blue);border-color:var(--blue-light);animation:pen-bob .8s ease-in-out infinite}
@@ -187,9 +187,9 @@ body::before{
 .badge-error{color:#b84040;border-color:#d98080}
 .badge-retry{color:#8a6020;border-color:#c8a060}
 .expand-btn{
-  font-family:'Caveat',cursive;font-size:.88rem;
+  font-family:'Inter',sans-serif;font-size:.8rem;font-weight:500;
   background:none;border:1px solid var(--brown);border-radius:20px;
-  padding:3px 12px;color:var(--brown-dark);cursor:pointer;
+  padding:4px 12px;color:var(--brown-dark);cursor:pointer;
   transition:background .2s;
 }
 .expand-btn:hover{background:rgba(200,184,154,.2)}
@@ -207,10 +207,10 @@ body::before{
 }
 .output-wrap{margin-top:14px;animation:fade-slide .3s ease}
 .output-pre{
-  font-family:'Special Elite',cursive;font-size:.82rem;
+  font-family:'Inter',sans-serif;font-size:.84rem;
   background:rgba(245,240,232,.7);border:1px solid rgba(200,184,154,.5);
-  border-radius:3px;padding:14px;white-space:pre-wrap;word-break:break-word;
-  color:#3a3020;line-height:1.6;max-height:420px;overflow-y:auto;
+  border-radius:3px;padding:16px;white-space:pre-wrap;word-break:break-word;
+  color:#2a2015;line-height:1.75;max-height:420px;overflow-y:auto;
 }
 .error-msg{
   font-family:'Caveat',cursive;font-size:.95rem;color:#b84040;
@@ -229,10 +229,10 @@ body::before{
   border-radius:4px;padding:18px 22px;display:flex;
   align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
 }
-.done-bar-title{font-family:'Libre Baskerville',serif;color:var(--green);font-size:1rem}
+.done-bar-title{font-family:'Libre Baskerville',serif;color:var(--green);font-size:1rem;font-weight:700}
 .done-bar-btns{display:flex;gap:10px;flex-wrap:wrap}
 .btn-copy,.btn-again{
-  font-family:'Special Elite',cursive;font-size:.9rem;
+  font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;
   padding:9px 18px;border-radius:3px;cursor:pointer;border:1.5px solid;
   transition:all .2s;
 }
