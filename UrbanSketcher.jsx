@@ -524,14 +524,10 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
   const ctx = agentId === 3 ? trimContext(prevOutput, 1800) : prevOutput;
   const prompt = buildPrompt(agentId, niche, location, ctx);
 
-  // Model routing:
-  // Agent 01 → claude-sonnet-4-20250514 (required for reliable web search)
-  // Agents 02–04 → claude-3-5-haiku-20241022 (4× cheaper, excellent at structured tasks)
+  // All agents use claude-sonnet-4-20250514 (Haiku not available on this plan)
+  // Credit savings come from tiered max_tokens + trimmed context + inter-agent delays
   const useSearch = agentId === 1;
-  const model = agentId === 1
-    ? "claude-sonnet-4-20250514"
-    : "claude-3-5-haiku-20241022";
-  // Tiered max_tokens: Sonnet needs space for web content; Haiku is concise by nature
+  const model = "claude-sonnet-4-20250514";
   const maxTokens = agentId === 1 ? 1800 : 1200;
 
   const body = {
