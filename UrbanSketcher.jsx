@@ -1231,7 +1231,7 @@ export default function UrbanSketcher() {
 
   return (
     <>
-      <style>{CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
 
       {/* Aurora Animated Background */}
       <div className="aurora-bg">
