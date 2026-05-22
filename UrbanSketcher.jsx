@@ -1,305 +1,271 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Search, BrainCircuit, PenTool, MessageSquare, 
+  CheckCircle, Copy, RotateCcw, Play, MapPin, 
+  ChevronDown, ChevronUp, Sparkles, Loader2, Info, AlertCircle
+} from "lucide-react";
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap');`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');`;
 
 const CSS = `
 ${FONTS}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --parchment:#f5f0e8;--green:#3a5f4a;--blue:#3a6a9a;
-  --brown:#c8b89a;--brown-dark:#8a7060;--blue-light:#8aaccf;
-  --green-light:#8aaa7a;--spiral:#b0a080;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-primary: #fdfbf7;
+  --bg-secondary: #f4f1ea;
+  --accent-primary: #2c4c3b;
+  --accent-secondary: #c88242;
+  --text-main: #1a1a1a;
+  --text-muted: #6b6b6b;
+  --border-color: rgba(44, 76, 59, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.8);
 }
-body{
-  font-family:'Inter',sans-serif;
-  background-color:var(--parchment);
-  background-image:
-    repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(180,160,120,.18) 28px),
-    repeating-linear-gradient(90deg,transparent,transparent 27px,rgba(180,160,120,.07) 28px);
-  min-height:100vh;overflow-x:hidden;
-  padding-left:48px;
-}
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 420px 320px at 15% 25%,rgba(58,95,74,.07) 0%,transparent 70%),
-    radial-gradient(ellipse 380px 280px at 85% 70%,rgba(58,106,154,.06) 0%,transparent 70%),
-    radial-gradient(ellipse 300px 250px at 50% 50%,rgba(200,184,154,.08) 0%,transparent 70%);
-}
-
-/* SPIRAL */
-.spiral{
-  position:fixed;left:0;top:0;bottom:0;width:44px;z-index:50;
-  display:flex;flex-direction:column;align-items:center;justify-content:space-around;
-  padding:32px 0;background:linear-gradient(to right,rgba(176,160,128,.15),transparent);
-}
-.spiral-ring{
-  width:18px;height:18px;border-radius:50%;
-  border:2.5px solid var(--spiral);
-  background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.6),rgba(200,180,140,.2));
-  box-shadow:0 1px 3px rgba(0,0,0,.12);
-}
-@media(max-width:640px){.spiral{display:none}}
-
-/* HEADER */
-.header{
-  position:sticky;top:0;z-index:40;
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-  background:rgba(245,240,232,.82);
-  border-bottom:1.5px solid rgba(200,184,154,.6);
-  padding:12px 24px;
-  display:flex;align-items:center;gap:14px;
-}
-.logo-svg{width:36px;height:36px;flex-shrink:0}
-.header-title{font-family:'Special Elite',cursive;font-size:1.5rem;color:var(--green)}
-.header-sub{font-family:'Caveat',cursive;font-size:1rem;color:var(--brown-dark);margin-left:6px}
-
-/* HERO */
-.hero{
-  text-align:center;padding:44px 24px 28px;position:relative;z-index:1;
-}
-.hero h1{
-  font-family:'Libre Baskerville',serif;font-size:clamp(1.6rem,4vw,2.6rem);
-  color:var(--green);line-height:1.25;margin-bottom:10px;
-}
-.hero-highlight{
-  font-family:'Caveat',cursive;font-size:clamp(1.2rem,3vw,1.8rem);
-  color:var(--blue);font-style:italic;display:block;
-}
-.hero-sub{
-  font-family:'Libre Baskerville',serif;font-style:italic;
-  color:var(--brown-dark);margin-top:8px;font-size:.95rem;
-}
-.progress-bar-wrap{
-  max-width:500px;margin:18px auto 0;height:8px;
-  background:rgba(200,184,154,.35);border-radius:4px;overflow:hidden;
-}
-.progress-bar-fill{
-  height:100%;background:linear-gradient(90deg,var(--green),var(--blue));
-  border-radius:4px;transition:width .5s ease;
-}
-.progress-label{
-  font-family:'Caveat',cursive;color:var(--brown-dark);font-size:.95rem;margin-top:6px;
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(200, 130, 66, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(44, 76, 59, 0.05) 0px, transparent 50%);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* INPUT CARD */
-.input-card{
-  position:relative;max-width:780px;margin:0 auto 36px;
-  background:rgba(255,252,245,.85);border:1.5px solid var(--brown);
-  border-radius:4px;padding:28px 28px 24px;
-  box-shadow:2px 3px 12px rgba(0,0,0,.08);
-}
-.tape{
-  position:absolute;top:-14px;left:50%;transform:translateX(-50%);
-  width:120px;height:28px;
-  background:rgba(200,184,154,.55);border-radius:2px;
-  box-shadow:0 2px 6px rgba(0,0,0,.1);
-}
-.fields-row{
-  display:flex;gap:16px;margin-top:8px;
-  flex-wrap:wrap;
-}
-.field-wrap{flex:1;min-width:200px;display:flex;flex-direction:column;gap:6px}
-.field-label{font-family:'Caveat',cursive;color:var(--brown-dark);font-size:1rem}
-.field-input{
-  font-family:'Inter',sans-serif;font-size:.95rem;
-  background:rgba(245,240,232,.8);border:1.5px solid var(--brown);
-  border-radius:3px;padding:10px 12px;color:#2a2015;
-  transition:border-color .2s,box-shadow .2s;resize:none;
-}
-.field-input:focus{
-  outline:none;border-color:var(--green);
-  box-shadow:0 0 0 3px rgba(58,95,74,.12);
-}
-.loc-pill{
-  margin-top:10px;display:inline-block;
-  background:rgba(58,95,74,.12);border:1px solid rgba(58,95,74,.3);
-  color:var(--green);font-family:'Caveat',cursive;font-size:.95rem;
-  padding:5px 14px;border-radius:20px;
-}
-.run-btn{
-  display:block;width:100%;margin-top:18px;padding:13px;
-  font-family:'Special Elite',cursive;font-size:1.05rem;letter-spacing:.03em;
-  background:var(--green);color:#f5f0e8;
-  border:none;border-radius:3px;cursor:pointer;
-  transition:background .2s,transform .1s;
-  position:relative;overflow:hidden;
-}
-.run-btn:hover:not(:disabled){background:#2e4d3a;transform:translateY(-1px)}
-.run-btn:disabled{opacity:.65;cursor:not-allowed}
-.run-btn.running::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
-  animation:shimmer 1.4s infinite;
+/* Utilities */
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.ml-4 { margin-left: 16px; }
+.mt-4 { margin-top: 16px; }
+.w-full { width: 100%; }
+.w-3\\/4 { width: 75%; }
+.text-sm { font-size: 0.875rem; }
+.text-lg { font-size: 1.125rem; }
+.font-medium { font-weight: 500; }
+.flex-1 { flex: 1; }
+.overflow-hidden { overflow: hidden; }
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.animate-spin { animation: spin 1s linear infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+/* Glass Container */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
 }
 
-/* AGENTS SECTION */
-.agents-section{
-  max-width:780px;margin:0 auto;
-  padding-left:24px;padding-right:24px;
-  display:flex;flex-direction:column;gap:12px;
+/* Header */
+.header {
+  position: sticky; top: 0; z-index: 50;
+  padding: 16px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(253, 251, 247, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
 }
-.connector{
-  width:2px;height:24px;background:var(--brown);
-  margin:0 auto;border-style:dashed;
-  transition:background .4s;
+.header-brand {
+  display: flex; align-items: center; gap: 12px;
 }
-.connector.done{background:var(--green-light)}
+.header-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; font-weight: 600; color: var(--accent-primary);
+}
+.header-link {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; font-size: 0.9rem;
+  color: var(--text-muted); transition: color 0.2s;
+}
+.header-link:hover { color: var(--accent-primary); }
 
-/* AGENT CARD */
-.agent-card{
-  background:rgba(255,252,245,.88);border:1.5px solid var(--brown);
-  border-radius:4px;padding:20px 22px;
-  box-shadow:1px 2px 8px rgba(0,0,0,.06);
-  transition:border-color .35s,box-shadow .35s;
-}
-.agent-card.running{
-  border-color:var(--blue-light);
-  box-shadow:0 0 0 3px rgba(138,172,207,.2),1px 2px 12px rgba(0,0,0,.1);
-  animation:pulse-glow 2s ease-in-out infinite;
-}
-.agent-card.done{border-color:var(--green-light);box-shadow:1px 2px 10px rgba(0,0,0,.08)}
-.agent-card.error{border-color:#d98080}
-.card-top{display:flex;align-items:center;gap:12px;justify-content:space-between}
-.card-left{display:flex;align-items:center;gap:12px}
-.stamp{
-  width:44px;height:44px;border-radius:50%;
-  border:2px solid var(--brown);display:flex;align-items:center;
-  justify-content:center;font-family:'Caveat',cursive;font-size:1.1rem;
-  color:var(--brown-dark);flex-shrink:0;transition:all .35s;
-}
-.agent-card.done .stamp{
-  border:2.5px solid var(--green);outline:1.5px dashed var(--green);
-  outline-offset:3px;color:var(--green);font-size:1.3rem;
-}
-.card-name{font-family:'Libre Baskerville',serif;font-size:1rem;color:#2a2015;font-weight:700}
-.card-desc{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--brown-dark);margin-top:3px}
-.card-right{display:flex;align-items:center;gap:8px}
-.badge{
-  font-family:'Inter',sans-serif;font-size:.78rem;font-weight:500;
-  padding:3px 10px;border-radius:20px;border:1px solid currentColor;
-}
-.badge-idle{color:var(--brown-dark);border-color:var(--brown)}
-.badge-running{color:var(--blue);border-color:var(--blue-light);animation:pen-bob .8s ease-in-out infinite}
-.badge-done{color:var(--green);border-color:var(--green-light)}
-.badge-error{color:#b84040;border-color:#d98080}
-.badge-retry{color:#8a6020;border-color:#c8a060}
-.expand-btn{
-  font-family:'Inter',sans-serif;font-size:.8rem;font-weight:500;
-  background:none;border:1px solid var(--brown);border-radius:20px;
-  padding:4px 12px;color:var(--brown-dark);cursor:pointer;
-  transition:background .2s;
-}
-.expand-btn:hover{background:rgba(200,184,154,.2)}
-.progress-strip{
-  height:3px;background:rgba(200,184,154,.35);border-radius:2px;
-  margin-top:10px;overflow:hidden;
-}
-.strip-fill{
-  height:100%;border-radius:2px;
-  background:linear-gradient(90deg,var(--blue),var(--blue-light));
-  animation:shimmer-bar 1.4s infinite;
-}
-.agent-card.done .strip-fill{
-  background:var(--green-light);animation:none;width:100%!important;
-}
-.output-wrap{margin-top:14px;animation:fade-slide .3s ease}
-.output-pre{
-  font-family:'Inter',sans-serif;font-size:.84rem;
-  background:rgba(245,240,232,.7);border:1px solid rgba(200,184,154,.5);
-  border-radius:3px;padding:16px;white-space:pre-wrap;word-break:break-word;
-  color:#2a2015;line-height:1.75;max-height:420px;overflow-y:auto;
-}
-.error-msg{
-  font-family:'Caveat',cursive;font-size:.95rem;color:#b84040;
-  margin-top:10px;padding:8px 12px;background:rgba(180,60,60,.07);
-  border-radius:3px;border-left:3px solid #d98080;
+/* Layout */
+.main-container {
+  max-width: 900px; margin: 0 auto; padding: 48px 24px;
 }
 
-/* DONE BAR */
-.done-bar{
-  max-width:780px;margin:24px auto;
-  padding-left:24px;padding-right:24px;
-  animation:paper-load .4s ease;
+/* Hero */
+.hero {
+  text-align: center; margin-bottom: 48px;
 }
-.done-bar-inner{
-  background:rgba(138,170,122,.12);border:1.5px solid var(--green-light);
-  border-radius:4px;padding:18px 22px;display:flex;
-  align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem; color: var(--text-main); line-height: 1.2;
+  margin-bottom: 16px;
 }
-.done-bar-title{font-family:'Libre Baskerville',serif;color:var(--green);font-size:1rem;font-weight:700}
-.done-bar-btns{display:flex;gap:10px;flex-wrap:wrap}
-.btn-copy,.btn-again{
-  font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;
-  padding:9px 18px;border-radius:3px;cursor:pointer;border:1.5px solid;
-  transition:all .2s;
-}
-.btn-copy{background:var(--green);color:#f5f0e8;border-color:var(--green)}
-.btn-copy:hover{background:#2e4d3a}
-.btn-again{background:transparent;color:var(--green);border-color:var(--green)}
-.btn-again:hover{background:rgba(58,95,74,.08)}
-
-/* FOOTER */
-.footer{
-  text-align:center;padding:28px 24px;
-  font-family:'Caveat',cursive;font-size:1.05rem;color:var(--brown-dark);
-  border-top:1px dashed rgba(200,184,154,.5);margin-top:40px;
+.hero p {
+  font-size: 1.1rem; color: var(--text-muted); max-width: 600px; margin: 0 auto;
 }
 
-/* ANIMATIONS */
-@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
-@keyframes shimmer-bar{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-@keyframes pulse-glow{0%,100%{box-shadow:0 0 0 3px rgba(138,172,207,.15)}50%{box-shadow:0 0 0 6px rgba(138,172,207,.28)}}
-@keyframes pen-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-@keyframes fade-slide{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-@keyframes paper-load{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes stamp-in{0%{transform:scale(1.4);opacity:0}60%{transform:scale(.92)}100%{transform:scale(1);opacity:1}}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-@media(max-width:640px){
-  body{padding-left:0}
-  .spiral{display:none}
-  .header{padding:10px 12px}
-  .input-card{margin:0 12px 36px;padding:20px 16px}
-  .agents-section{padding-left:12px;padding-right:12px}
-  .done-bar{padding-left:12px;padding-right:12px}
-  .done-bar-inner{flex-direction:column;align-items:stretch}
-  .done-bar-btns{flex-direction:column}
-  .hero{padding-left:12px;padding-right:12px}
-  .footer{padding-left:12px;padding-right:12px}
+/* Input Form */
+.input-section {
+  padding: 32px; margin-bottom: 48px;
 }
+.input-group {
+  display: flex; flex-direction: column; gap: 24px; margin-bottom: 32px;
+}
+.input-field {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.input-field label {
+  font-weight: 500; color: var(--accent-primary); display: flex; align-items: center; gap: 6px;
+}
+.input-field input, .input-field textarea {
+  width: 100%; padding: 16px; border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.9);
+  font-family: 'Outfit', sans-serif; font-size: 1rem;
+  transition: all 0.2s ease;
+  resize: none;
+}
+.input-field input:focus, .input-field textarea:focus {
+  outline: none; border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 4px rgba(200, 130, 66, 0.1);
+}
+.run-btn {
+  width: 100%; padding: 18px; border-radius: 12px;
+  background: var(--accent-primary); color: white;
+  font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 600;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: transform 0.2s, background 0.2s;
+}
+.run-btn:hover:not(:disabled) {
+  background: #1e3629; transform: translateY(-2px);
+}
+.run-btn:disabled {
+  opacity: 0.7; cursor: not-allowed;
+}
+
+/* Agents Pipeline */
+.pipeline-container {
+  display: flex; flex-direction: column; gap: 16px; position: relative;
+}
+.agent-card {
+  padding: 24px; display: flex; flex-direction: column; gap: 16px;
+  transition: box-shadow 0.3s ease;
+  overflow: hidden;
+  border-width: 2px;
+  border-style: solid;
+}
+.agent-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.agent-info {
+  display: flex; align-items: center; gap: 16px;
+}
+.agent-icon-wrap {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.3s, color 0.3s;
+}
+.agent-title {
+  font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600;
+}
+.agent-desc {
+  font-size: 0.9rem; color: var(--text-muted);
+}
+.agent-status {
+  display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 0.9rem;
+}
+
+/* Status Colors */
+.status-idle { color: var(--text-muted); }
+.status-running { color: var(--accent-secondary); }
+.status-done { color: var(--accent-primary); }
+.status-error { color: #e53e3e; }
+
+.expand-btn {
+  background: transparent; border: 1px solid var(--border-color);
+  padding: 6px 12px; border-radius: 20px; font-size: 0.85rem;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: all 0.2s;
+}
+.expand-btn:hover { background: var(--bg-secondary); }
+
+/* Output & Animations */
+.output-box {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: 12px; padding: 20px;
+  font-family: 'Outfit', sans-serif; font-size: 0.95rem; line-height: 1.6;
+  white-space: pre-wrap; word-break: break-word;
+  max-height: 500px; overflow-y: auto;
+  color: var(--text-main);
+}
+.output-box::-webkit-scrollbar { width: 6px; }
+.output-box::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+
+/* Working Visualization */
+.working-vis {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px; background: rgba(200, 130, 66, 0.05);
+  border-radius: 12px; border: 1px dashed rgba(200, 130, 66, 0.3);
+  color: var(--accent-secondary);
+}
+.shimmer-line {
+  height: 8px; border-radius: 4px;
+  background: linear-gradient(90deg, transparent, rgba(200,130,66,0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+/* Done Bar */
+.done-bar {
+  margin-top: 32px; padding: 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--accent-primary); color: white;
+}
+.done-btns {
+  display: flex; gap: 12px;
+}
+.done-btn {
+  padding: 10px 20px; border-radius: 8px; font-weight: 500;
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  border: none; transition: background 0.2s; font-family: 'Outfit', sans-serif;
+}
+.btn-primary { background: white; color: var(--accent-primary); }
+.btn-primary:hover { background: #f0f0f0; }
+.btn-secondary { background: rgba(255,255,255,0.1); color: white; }
+.btn-secondary:hover { background: rgba(255,255,255,0.2); }
 `;
 
-
 /* ─── PROMPTS ─────────────────────────────────────────────────────── */
-
-// Creator profile context injected into every agent (kept short to stay under rate limits)
-const CREATOR_CONTEXT = `
+// Creator profile context injected into every agent
+const CREATOR_CONTEXT = \`
 ACCOUNT: @usknagpur — Urban Sketchers Nagpur | 3,825 followers | ~3,500 avg reel views
 GAP: Only event documentation posted — zero tutorials/tips/process reels.
 GOAL: Break follower bubble, grow non-follower reach. City: Nagpur, India.
-`;
+\`;
 
 const buildPrompt = (agentId, niche, location, prevOutput) => {
   const loc = location ? location.trim() : "";
   const locNote = loc
-    ? `The sketching location is: "${loc}". All agents must weave this location into their output as instructed below.`
+    ? \`The sketching location is: "\${loc}". All agents must weave this location into their output as instructed below.\`
     : "";
 
-  // ── AGENT 01 ────────────────────────────────────────────────────────
   if (agentId === 1) {
     const locSearch = loc
-      ? `Run an additional search specifically for "${niche}" + "${loc}" to find local or regional content patterns.`
+      ? \`Run an additional search specifically for "\${niche}" + "\${loc}" to find local or regional content patterns.\`
       : "";
 
-    return `You are Agent 01 — Content Scout for @usknagpur (Urban Sketchers Nagpur).
-${CREATOR_CONTEXT}
-${locNote}
+    return \`You are Agent 01 — Content Scout for @usknagpur (Urban Sketchers Nagpur).
+\${CREATOR_CONTEXT}
+\${locNote}
 
 Using your knowledge of social media content trends for art and urban sketching creators, identify the TOP 10 highest-performing content patterns on YouTube and Instagram for this niche.
-${locSearch}
+\${locSearch}
 
 Be specific and realistic. Reference real creator styles and formats you know work well.
 
@@ -319,22 +285,21 @@ Name the #1 format pulling non-follower reach in this niche and why.
 VIRAL PICKS (top 3 to adapt for @usknagpur):
 1. [pattern] — [why it works for a Nagpur community account]
 2. [pattern] — [why it works for a Nagpur community account]
-3. [pattern] — [why it works for a Nagpur community account]`;
+3. [pattern] — [why it works for a Nagpur community account]\`;
   }
 
-  // ── AGENT 02 ────────────────────────────────────────────────────────
   if (agentId === 2) {
     const locSection = loc
-      ? `\n\nLOCATION OPPORTUNITY — "${loc}":\nIn 4–5 sentences, describe exactly how @usknagpur could execute the RECOMMENDED TOPIC at "${loc}". Reference its specific visual qualities (light direction, architectural details, textures, crowds), the best time of day to shoot, and one logistical tip. Make it actionable, not generic.`
+      ? \`\n\nLOCATION OPPORTUNITY — "\${loc}":\nIn 4–5 sentences, describe exactly how @usknagpur could execute the RECOMMENDED TOPIC at "\${loc}". Reference its specific visual qualities (light direction, architectural details, textures, crowds), the best time of day to shoot, and one logistical tip. Make it actionable, not generic.\`
       : "";
 
-    return `You are Agent 02 — Validation Engine. You analyze content data and produce a prioritized strategy brief for @usknagpur.
+    return \`You are Agent 02 — Validation Engine. You analyze content data and produce a prioritized strategy brief for @usknagpur.
 
-${CREATOR_CONTEXT}
-${locNote}
+\${CREATOR_CONTEXT}
+\${locNote}
 
 RESEARCH DATA FROM AGENT 01:
-${prevOutput}
+\${prevOutput}
 
 ─────────────────────────────────────────────
 SECTION 1 — SCORING
@@ -371,22 +336,21 @@ Optimal Format & Length: [e.g. "60-sec Reel with time-lapse B-roll"]
 Why Now: [1 sentence on timing — why this week, this trend]
 Estimated Reach: [range, split between follower and non-follower]
 Hashtag Strategy: [3 categories of hashtags to use — e.g. "niche community tags + city tags + trending art tags"]
-Content Gap Opportunity: [from Agent 01's gap alert — can @usknagpur own this angle?]${locSection}`;
+Content Gap Opportunity: [from Agent 01's gap alert — can @usknagpur own this angle?]\${locSection}\`;
   }
 
-  // ── AGENT 03 ────────────────────────────────────────────────────────
   if (agentId === 3) {
     const locGround = loc
-      ? `LOCATION GROUNDING: The script must be set at "${loc}". Reference at least 2 specific sensory details (e.g. the sound of water, the colour of the stone, the quality of morning light, the smell of the air, the texture of the pavement). Make it feel like the viewer is there.`
+      ? \`LOCATION GROUNDING: The script must be set at "\${loc}". Reference at least 2 specific sensory details (e.g. the sound of water, the colour of the stone, the quality of morning light, the smell of the air, the texture of the pavement). Make it feel like the viewer is there.\`
       : "";
 
-    return `You are Agent 03 — Script Writer for @usknagpur (Urban Sketchers Nagpur).
+    return \`You are Agent 03 — Script Writer for @usknagpur (Urban Sketchers Nagpur).
 
-${CREATOR_CONTEXT}
-${locNote}
+\${CREATOR_CONTEXT}
+\${locNote}
 
 VALIDATION DATA FROM AGENT 02:
-${prevOutput}
+\${prevOutput}
 
 TASK: Write a 60-second reel script for the RECOMMENDED TOPIC from the validation data above.
 
@@ -396,7 +360,7 @@ Tone reference: Austin Kleon meets a Studio Ghibli narrator — curious, warm, u
 Use "you" and "we" freely. No "Hey guys!" openers. No listicle energy. No hard sells.
 First person throughout. Every line should feel like it could be spoken, not read.
 
-${locGround}
+\${locGround}
 
 ─────────────────────────────────────────────
 SCRIPT STRUCTURE — use exactly these 4 labeled beats:
@@ -426,24 +390,23 @@ Write TWO CTA options — pick the stronger one and mark it RECOMMENDED:
 PRODUCTION NOTES (add at end):
 - Suggested background music mood: [1 descriptor]
 - Best time to post for Nagpur audience: [day + time window]
-- One prop or tool to make the sketch process more visually interesting on camera`;
+- One prop or tool to make the sketch process more visually interesting on camera\`;
   }
 
-  // ── AGENT 04 ────────────────────────────────────────────────────────
   if (agentId === 4) {
     const locHooks = loc
-      ? `LOCATION RULE: At least 2 of your 5 hooks MUST reference "${loc}" by name OR use a specific sensory detail tied to that place. Generic location references ("a beautiful lakeside") are not acceptable — be specific.`
+      ? \`LOCATION RULE: At least 2 of your 5 hooks MUST reference "\${loc}" by name OR use a specific sensory detail tied to that place. Generic location references ("a beautiful lakeside") are not acceptable — be specific.\`
       : "";
 
-    return `You are Agent 04 — Hook Generator for @usknagpur (Urban Sketchers Nagpur).
+    return \`You are Agent 04 — Hook Generator for @usknagpur (Urban Sketchers Nagpur).
 
-${CREATOR_CONTEXT}
-${locNote}
+\${CREATOR_CONTEXT}
+\${locNote}
 
 SCRIPT FROM AGENT 03:
-${prevOutput}
+\${prevOutput}
 
-${locHooks}
+\${locHooks}
 
 TASK: Generate exactly 5 scroll-stopping hooks for this reel. These hooks replace the opening 3 seconds.
 Hooks must stop a cold audience — someone who has never heard of @usknagpur — from scrolling past.
@@ -486,7 +449,7 @@ PLATFORM OPTIMISATION:
 Instagram Reels: [which hook performs best here and why — consider the scroll speed and audience intent on Instagram]
 YouTube Shorts: [which hook performs best here and why — consider that YouTube Shorts viewers have slightly longer attention spans]
 
-A/B TEST SUGGESTION: [recommend 2 hooks to split-test against each other and what metric to watch — saves, comments, or shares]`;
+A/B TEST SUGGESTION: [recommend 2 hooks to split-test against each other and what metric to watch — saves, comments, or shares]\`;
   }
 
   return "";
@@ -494,29 +457,21 @@ A/B TEST SUGGESTION: [recommend 2 hooks to split-test against each other and wha
 
 /* ─── AGENT RUNNER ────────────────────────────────────────────────── */
 const AGENT_META = [
-  { id: 1, name: "Content Scout",     desc: "Searching YouTube & Instagram trends" },
-  { id: 2, name: "Validation Engine", desc: "Scoring & clustering content data"    },
-  { id: 3, name: "Script Writer",     desc: "Drafting your 60-second reel script"  },
-  { id: 4, name: "Hook Generator",    desc: "Generating 5 scroll-stopping hooks"   },
+  { id: 1, name: "Content Scout",     desc: "Searching YouTube & Instagram trends", icon: Search },
+  { id: 2, name: "Validation Engine", desc: "Scoring & clustering content data",   icon: BrainCircuit },
+  { id: 3, name: "Script Writer",     desc: "Drafting your 60-second reel script",icon: PenTool },
+  { id: 4, name: "Hook Generator",    desc: "Generating 5 scroll-stopping hooks", icon: MessageSquare },
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Trim previous-agent output to avoid inflating input tokens.
-// Agent 03 only needs Agent 02's recommendation section (bottom of output).
 const trimContext = (text, maxChars) =>
-  text.length <= maxChars ? text : "[...trimmed for token efficiency...]\n" + text.slice(-maxChars);
+  text.length <= maxChars ? text : "[...trimmed for token efficiency...]\\n" + text.slice(-maxChars);
 
 async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
-  // Smart context: pass full output to Agent 02 (needs all data),
-  // trim to last 1800 chars for Agent 03 (recommendation section is at the bottom),
-  // Agent 04 gets full script (it's short anyway).
   const ctx = agentId === 3 ? trimContext(prevOutput, 1800) : prevOutput;
   const prompt = buildPrompt(agentId, niche, location, ctx);
 
-  // All agents → Anthropic (OpenAI disabled — add credits at platform.openai.com/settings/billing
-  // then change endpoint to "/api/search" and model to "gpt-4o-search-preview" for Agent 01
-  // to get live 2026 web search results)
   const body = {
     model: "claude-sonnet-4-20250514",
     max_tokens: agentId === 1 ? 1800 : 1200,
@@ -537,18 +492,18 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
 
       if (res.status === 401 || res.status === 400) {
         const data = await res.json();
-        throw new Error(data?.error?.message || `HTTP ${res.status}`);
+        throw new Error(data?.error?.message || \`HTTP \${res.status}\`);
       }
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data?.error?.message || `HTTP ${res.status}`);
+        throw new Error(data?.error?.message || \`HTTP \${res.status}\`);
       }
 
       const data = await res.json();
       const text = (data.content || [])
         .filter((b) => b.type === "text")
         .map((b) => b.text)
-        .join("\n\n");
+        .join("\\n\\n");
 
       if (!text) throw new Error("No content in response");
       return text;
@@ -559,46 +514,36 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
   }
 }
 
-
 /* ─── COMPONENT ───────────────────────────────────────────────────── */
 export default function UrbanSketcher() {
-  const [niche, setNiche]       = useState("urban sketching");
+  const [niche, setNiche] = useState("urban sketching");
   const [location, setLocation] = useState("");
-  const [running, setRunning]   = useState(false);
-  const [agents, setAgents]     = useState(
+  const [running, setRunning] = useState(false);
+  const [agents, setAgents] = useState(
     AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false }))
   );
-  const [progress, setProgress]   = useState(0);
-  const [progressLabel, setProgressLabel] = useState("");
-  const [allDone, setAllDone]     = useState(false);
-  const [copyMsg, setCopyMsg]     = useState("");
+  const [allDone, setAllDone] = useState(false);
+  const [copyMsg, setCopyMsg] = useState("");
   const outputsRef = useRef([]);
 
   const setAgent = (id, patch) =>
     setAgents((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)));
 
   const runPipeline = useCallback(async () => {
-    if (running) return;
+    if (running || !niche.trim()) return;
     setRunning(true);
     setAllDone(false);
     setCopyMsg("");
     outputsRef.current = [];
     setAgents(AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false })));
-    setProgress(0);
-    setProgressLabel("");
 
     let prevOutput = "";
 
     for (let i = 0; i < 4; i++) {
       const agentId = i + 1;
-      // 25s cooldown between agents — keeps total input tokens well under 30k/min limit
       if (i > 0) {
-        setProgressLabel(`Agent ${agentId} of 4 starting in 25s…`);
         await sleep(25000);
       }
-      const pct = Math.round((i / 4) * 100);
-      setProgress(pct);
-      setProgressLabel(`Agent ${agentId} of 4 running… ${pct}%`);
       setAgent(agentId, { status: "running", retry: 0 });
 
       try {
@@ -616,29 +561,19 @@ export default function UrbanSketcher() {
         const msg = err.message || "Unknown error";
         outputsRef.current[i] = "";
         setAgent(agentId, { status: "error", error: msg });
-        // Continue pipeline even on error — next agent gets empty prevOutput
         prevOutput = "";
       }
     }
 
-    setProgress(100);
-    setProgressLabel("Pipeline complete!");
     setRunning(false);
     setAllDone(true);
   }, [running, niche, location]);
 
-  const handleKey = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      runPipeline();
-    }
-  };
-
   const copyAll = () => {
     const all = outputsRef.current
-      .map((o, i) => o ? `=== AGENT ${i + 1}: ${AGENT_META[i].name} ===\n\n${o}` : "")
+      .map((o, i) => o ? \`=== AGENT \${i + 1}: \${AGENT_META[i].name} ===\\n\\n\${o}\` : "")
       .filter(Boolean)
-      .join("\n\n" + "─".repeat(60) + "\n\n");
+      .join("\\n\\n" + "─".repeat(60) + "\\n\\n");
 
     const tryFallback = () => {
       try {
@@ -666,202 +601,202 @@ export default function UrbanSketcher() {
   const resetPipeline = () => {
     setAgents(AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false })));
     setAllDone(false);
-    setProgress(0);
-    setProgressLabel("");
     outputsRef.current = [];
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.15 } }
+  };
+  
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
 
   return (
     <>
       <style>{CSS}</style>
 
-      {/* Spiral binding */}
-      <div className="spiral" aria-hidden="true">
-        {Array.from({ length: 30 }).map((_, i) => (
-          <div key={i} className="spiral-ring" />
-        ))}
-      </div>
-
       {/* Header */}
       <header className="header">
-        <svg className="logo-svg" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-          <circle cx="18" cy="18" r="16" stroke="#3a5f4a" strokeWidth="2" fill="rgba(58,95,74,.08)" />
-          <path d="M10 26 Q14 10 18 14 Q22 18 26 8" stroke="#3a5f4a" strokeWidth="2" strokeLinecap="round" fill="none" />
-          <circle cx="26" cy="8" r="2" fill="#3a6a9a" />
-          <line x1="10" y1="27" x2="27" y2="27" stroke="#c8b89a" strokeWidth="1.5" strokeDasharray="3,3" />
-        </svg>
-        <span className="header-title">Urban Sketcher</span>
-        <span className="header-sub">content intelligence</span>
+        <div className="header-brand">
+          <Sparkles className="text-[var(--accent-primary)]" size={24} color="var(--accent-primary)" />
+          <span className="header-title">UrbanSketcher</span>
+        </div>
+        <a href="#" className="header-link">
+          <Info size={16} /> How it works
+        </a>
       </header>
 
-      {/* Hero */}
-      <section className="hero">
-        <h1>
-          Build Your AI Agent<br />
-          <span className="hero-highlight">Content System</span>
-        </h1>
-        <p className="hero-sub">4 agents · web search · scripts · hooks · in one pipeline</p>
-        {running && (
-          <div>
-            <div className="progress-bar-wrap" role="status" aria-live="polite">
-              <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
-            </div>
-            <p className="progress-label">{progressLabel}</p>
-          </div>
-        )}
-        {allDone && !running && (
-          <p className="progress-label" role="status">✓ {progressLabel}</p>
-        )}
-      </section>
-
-      {/* Input card */}
-      <div className="input-card" role="form" aria-label="Pipeline configuration">
-        <div className="tape" aria-hidden="true" />
-        <div className="fields-row">
-          <div className="field-wrap">
-            <label className="field-label" htmlFor="niche-input">Niche / subject matter</label>
-            <textarea
-              id="niche-input"
-              className="field-input"
-              rows={1}
-              value={niche}
-              onChange={(e) => setNiche(e.target.value)}
-              onKeyDown={handleKey}
-              disabled={running}
-              aria-label="Niche or subject matter"
-            />
-          </div>
-          <div className="field-wrap">
-            <label className="field-label" htmlFor="location-input">
-              Sketching location <span style={{ opacity: .65 }}>(optional)</span>
-            </label>
-            <textarea
-              id="location-input"
-              className="field-input"
-              rows={1}
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              onKeyDown={handleKey}
-              placeholder="e.g. Futala Lake, Nagpur"
-              disabled={running}
-              aria-label="Sketching location (optional)"
-            />
-          </div>
-        </div>
-        {location.trim() && (
-          <div className="loc-pill" role="status">
-            📍 All 4 agents will be grounded in {location.trim()}
-          </div>
-        )}
-        <button
-          id="run-pipeline-btn"
-          className={`run-btn${running ? " running" : ""}`}
-          onClick={runPipeline}
-          disabled={running || !niche.trim()}
-          aria-label="Run the 4-agent pipeline"
+      <main className="main-container">
+        {/* Hero Section */}
+        <motion.section 
+          className="hero"
+          initial={{ opacity: 0, y: -20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.6 }}
         >
-          {running ? "✍ Pipeline running…" : "▶ Run Pipeline"}
-        </button>
-      </div>
+          <h1>Design Your Creative Workflow</h1>
+          <p>Provide a topic and let our 4-agent AI system handle research, validation, scripting, and viral hooks automatically.</p>
+        </motion.section>
 
-      {/* Agent cards */}
-      <div className="agents-section" aria-label="Pipeline agents">
-        {agents.map((agent, idx) => {
-          const isLast = idx === agents.length - 1;
-          const connDone = agent.status === "done";
-
-          return (
-            <div key={agent.id}>
-              <div
-                id={`agent-card-${agent.id}`}
-                className={`agent-card ${agent.status}`}
-                role="region"
-                aria-label={`Agent ${agent.id}: ${agent.name}`}
-              >
-                <div className="card-top">
-                  <div className="card-left">
-                    <div
-                      className="stamp"
-                      aria-hidden="true"
-                      style={agent.status === "done" ? { animation: "stamp-in .4s ease" } : {}}
-                    >
-                      {agent.status === "done" ? "✓" : `0${agent.id}`}
-                    </div>
-                    <div>
-                      <div className="card-name">Agent {agent.id < 10 ? `0${agent.id}` : agent.id} — {agent.name}</div>
-                      <div className="card-desc">{agent.desc}</div>
-                    </div>
-                  </div>
-                  <div className="card-right">
-                    {agent.status === "idle"    && <span className="badge badge-idle">○ idle</span>}
-                    {agent.status === "running" && agent.retry === 0 && <span className="badge badge-running" role="status">✍ sketching…</span>}
-                    {agent.status === "running" && agent.retry > 0  && <span className="badge badge-retry" role="status">↺ retry {agent.retry}/2</span>}
-                    {agent.status === "done"    && <span className="badge badge-done">✓ inked</span>}
-                    {agent.status === "error"   && <span className="badge badge-error" role="alert">✗ failed</span>}
-                    {agent.status === "done" && (
-                      <button
-                        className="expand-btn"
-                        onClick={() => setAgent(agent.id, { expanded: !agent.expanded })}
-                        aria-expanded={agent.expanded}
-                        aria-controls={`agent-output-${agent.id}`}
-                      >
-                        {agent.expanded ? "▲ hide" : "▼ show"}
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {agent.status === "running" && (
-                  <div className="progress-strip" role="progressbar" aria-label="Processing">
-                    <div className="strip-fill" />
-                  </div>
-                )}
-
-                {agent.status === "done" && agent.expanded && (
-                  <div className="output-wrap" id={`agent-output-${agent.id}`}>
-                    <pre className="output-pre">{agent.output}</pre>
-                  </div>
-                )}
-
-                {agent.status === "error" && (
-                  <div className="error-msg" role="alert">
-                    ✗ {agent.error}
-                  </div>
-                )}
-              </div>
-
-              {!isLast && (
-                <div
-                  className={`connector${connDone ? " done" : ""}`}
-                  aria-hidden="true"
-                />
-              )}
+        {/* Input Form */}
+        <motion.div 
+          className="input-section glass-panel"
+          initial={{ opacity: 0, scale: 0.95 }} 
+          animate={{ opacity: 1, scale: 1 }} 
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
+          <div className="input-group">
+            <div className="input-field">
+              <label htmlFor="niche-input">
+                <Search size={18} /> What's the main topic or niche?
+              </label>
+              <input 
+                id="niche-input" 
+                value={niche} 
+                onChange={(e) => setNiche(e.target.value)} 
+                disabled={running} 
+                placeholder="e.g. Urban sketching, ink wash, architecture..."
+              />
             </div>
-          );
-        })}
-      </div>
-
-      {/* Done bar */}
-      {allDone && (
-        <div className="done-bar">
-          <div className="done-bar-inner" role="region" aria-label="Pipeline complete">
-            <div className="done-bar-title">🎨 Pipeline complete — all agents inked</div>
-            <div className="done-bar-btns">
-              <button id="copy-output-btn" className="btn-copy" onClick={copyAll} aria-label="Copy all agent outputs">
-                {copyMsg || "⎘ Copy All Output"}
-              </button>
-              <button id="run-again-btn" className="btn-again" onClick={resetPipeline} aria-label="Reset and run again">
-                ↺ Run Again
-              </button>
+            <div className="input-field">
+              <label htmlFor="location-input">
+                <MapPin size={18} /> Location <span style={{ opacity: 0.6, fontSize: '0.85em' }}>(Optional)</span>
+              </label>
+              <input 
+                id="location-input" 
+                value={location} 
+                onChange={(e) => setLocation(e.target.value)} 
+                disabled={running} 
+                placeholder="e.g. Futala Lake, Nagpur"
+              />
             </div>
           </div>
-        </div>
-      )}
+          
+          <button onClick={runPipeline} disabled={running || !niche.trim()} className="run-btn">
+            {running ? (
+              <><Loader2 className="animate-spin" size={20} /> Pipeline Running...</>
+            ) : (
+              <><Play size={20} /> Generate Content System</>
+            )}
+          </button>
+        </motion.div>
 
-      {/* Footer */}
-      <footer className="footer">
-        draw the world · one sketch at a time
-      </footer>
+        {/* Agents Pipeline */}
+        <motion.div 
+          className="pipeline-container"
+          variants={containerVariants} 
+          initial="hidden" 
+          animate="show"
+        >
+          <AnimatePresence>
+            {agents.map((agent) => {
+              const Icon = agent.icon;
+              const isRunning = agent.status === "running";
+              const isDone = agent.status === "done";
+              const isError = agent.status === "error";
+
+              return (
+                <motion.div 
+                  key={agent.id} 
+                  variants={itemVariants}
+                  layout
+                  className={\`agent-card glass-panel \${isRunning ? "shadow-lg" : ""}\`}
+                  style={{
+                    borderColor: isRunning ? 'var(--accent-secondary)' : isDone ? 'var(--accent-primary)' : 'var(--border-color)',
+                  }}
+                >
+                  <motion.div layout className="agent-header">
+                    <div className="agent-info">
+                      <div className="agent-icon-wrap" style={{ 
+                        background: isRunning ? 'var(--accent-secondary)' : isDone ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+                        color: isRunning || isDone ? 'white' : 'var(--accent-primary)'
+                      }}>
+                        <Icon size={24} />
+                      </div>
+                      <div>
+                        <h3 className="agent-title">Agent 0{agent.id} — {agent.name}</h3>
+                        <p className="agent-desc">{agent.desc}</p>
+                      </div>
+                    </div>
+
+                    <div className="agent-status">
+                      {agent.status === "idle" && <span className="status-idle">Waiting...</span>}
+                      {isRunning && (
+                        <span className="status-running flex items-center gap-2">
+                          <Loader2 size={16} className="animate-spin" /> Processing
+                        </span>
+                      )}
+                      {isDone && <span className="status-done flex items-center gap-2"><CheckCircle size={18} /> Complete</span>}
+                      {isError && <span className="status-error flex items-center gap-2"><AlertCircle size={18} /> Failed</span>}
+
+                      {isDone && (
+                        <button className="expand-btn ml-4" onClick={() => setAgent(agent.id, { expanded: !agent.expanded })}>
+                          {agent.expanded ? <><ChevronUp size={16} /> Hide</> : <><ChevronDown size={16} /> Show</>}
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+
+                  <AnimatePresence>
+                    {isRunning && (
+                      <motion.div 
+                        key="working-vis"
+                        initial={{ opacity: 0, height: 0 }} 
+                        animate={{ opacity: 1, height: "auto" }} 
+                        exit={{ opacity: 0, height: 0 }}
+                        className="working-vis overflow-hidden mt-4"
+                      >
+                        <Sparkles size={20} className="animate-pulse" />
+                        <div className="flex-1">
+                          <div className="shimmer-line w-full mb-2" />
+                          <div className="shimmer-line w-3/4" />
+                        </div>
+                      </motion.div>
+                    )}
+                    {isDone && agent.expanded && (
+                      <motion.div 
+                        key="output-vis"
+                        initial={{ opacity: 0, height: 0 }} 
+                        animate={{ opacity: 1, height: "auto" }} 
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden mt-4"
+                      >
+                        <div className="output-box">{agent.output}</div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Done Bar */}
+        <AnimatePresence>
+          {allDone && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }}
+              className="done-bar glass-panel"
+            >
+              <div className="font-medium text-lg flex items-center gap-3">
+                <CheckCircle size={24} /> Pipeline Complete
+              </div>
+              <div className="done-btns">
+                <button onClick={copyAll} className="done-btn btn-primary">
+                  <Copy size={18} /> {copyMsg || "Copy All"}
+                </button>
+                <button onClick={resetPipeline} className="done-btn btn-secondary">
+                  <RotateCcw size={18} /> Reset
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
     </>
   );
 }
