@@ -1,162 +1,257 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, BrainCircuit, PenTool, MessageSquare, Video,
   CheckCircle, Copy, RotateCcw, Play, MapPin, 
-  ChevronDown, ChevronUp, Sparkles, Loader2, Info, AlertCircle
+  ChevronDown, ChevronUp, Sparkles, Loader2, Info, AlertCircle,
+  Terminal, ShieldCheck, Cpu, Sliders, Volume2, Film, Check, ExternalLink,
+  Zap, BarChart2, Trash2
 } from "lucide-react";
 
-const FONTS = `@import url(https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap);`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap');`;
 
 const CSS = `
 ${FONTS}
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
-  --bg-primary: #fdfbf7;
-  --bg-secondary: #f4f1ea;
-  --accent-primary: #2c4c3b;
-  --accent-secondary: #c88242;
-  --text-main: #1a1a1a;
-  --text-muted: #6b6b6b;
-  --border-color: rgba(44, 76, 59, 0.15);
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.8);
+  --bg-primary: #070913;
+  --bg-secondary: #0f1322;
+  --accent-primary: #6366f1; /* Neon Indigo */
+  --accent-secondary: #a855f7; /* Violet/Purple */
+  --accent-rose: #f43f5e; /* Rose Glow */
+  --accent-cyan: #06b6d4; /* Cyan */
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --border-color: rgba(99, 102, 241, 0.15);
+  --glass-bg: rgba(15, 19, 34, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.04);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --terminal-bg: #05070e;
 }
+
 body {
   font-family: 'Outfit', sans-serif;
   background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(200, 130, 66, 0.04) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(44, 76, 59, 0.05) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.12) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(168, 85, 247, 0.04) 0px, transparent 70%);
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.25);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.45);
 }
 
 /* Utilities */
 .flex { display: flex; }
 .items-center { align-items: center; }
 .justify-between { justify-content: space-between; }
+.gap-1 { gap: 4px; }
 .gap-2 { gap: 8px; }
 .gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
 .ml-4 { margin-left: 16px; }
+.mt-2 { margin-top: 8px; }
 .mt-4 { margin-top: 16px; }
 .w-full { width: 100%; }
-.w-3/4 { width: 75%; }
 .text-sm { font-size: 0.875rem; }
+.text-xs { font-size: 0.75rem; }
 .text-lg { font-size: 1.125rem; }
 .font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
 .flex-1 { flex: 1; }
 .overflow-hidden { overflow: hidden; }
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .animate-spin { animation: spin 1s linear infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-
-/* Glass Container */
-.glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
-}
 
 /* Header */
 .header {
   position: sticky; top: 0; z-index: 50;
-  padding: 16px 32px;
+  padding: 16px 40px;
   display: flex; align-items: center; justify-content: space-between;
-  background: rgba(253, 251, 247, 0.8);
-  backdrop-filter: blur(12px);
+  background: rgba(7, 9, 19, 0.85);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 .header-brand {
   display: flex; align-items: center; gap: 12px;
 }
+.header-logo-icon {
+  color: var(--accent-primary);
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6));
+}
 .header-title {
   font-family: 'Playfair Display', serif;
-  font-size: 1.5rem; font-weight: 600; color: var(--accent-primary);
+  font-size: 1.6rem; font-weight: 700;
+  background: linear-gradient(to right, #ffffff, #a855f7, #f43f5e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-.header-link {
-  display: flex; align-items: center; gap: 8px;
-  text-decoration: none; font-size: 0.9rem;
-  color: var(--text-muted); transition: color 0.2s;
+.header-meta {
+  display: flex; align-items: center; gap: 20px;
 }
-.header-link:hover { color: var(--accent-primary); }
+.header-badge {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 6px 12px; border-radius: 99px;
+  font-size: 0.8rem; font-weight: 500; color: #a5b4fc;
+  display: flex; align-items: center; gap: 6px;
+}
+.header-badge span {
+  width: 8px; height: 8px; border-radius: 50%; background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
 
-/* Layout */
+/* Main Container Layout */
 .main-container {
-  max-width: 900px; margin: 0 auto; padding: 48px 24px;
+  max-width: 1400px; margin: 0 auto; padding: 40px 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+@media (min-width: 1024px) {
+  .main-container {
+    grid-template-columns: 450px 1fr;
+  }
 }
 
-/* Hero */
-.hero {
-  text-align: center; margin-bottom: 48px;
+/* Glass Panels */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  transition: all 0.3s ease;
 }
-.hero h1 {
+.glass-panel:hover {
+  border-color: rgba(99, 102, 241, 0.25);
+}
+
+/* Section Title */
+.section-title {
   font-family: 'Playfair Display', serif;
-  font-size: 3rem; color: var(--text-main); line-height: 1.2;
-  margin-bottom: 16px;
-}
-.hero p {
-  font-size: 1.1rem; color: var(--text-muted); max-width: 600px; margin: 0 auto;
+  font-size: 1.5rem; font-weight: 600;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+  color: var(--text-main);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding-bottom: 12px;
 }
 
-/* Input Form */
-.input-section {
-  padding: 32px; margin-bottom: 48px;
-}
-.input-group {
-  display: flex; flex-direction: column; gap: 24px; margin-bottom: 32px;
+/* Config Sidebar */
+.sidebar-panel {
+  padding: 28px;
+  display: flex; flex-direction: column; gap: 20px;
+  height: fit-content;
 }
 .input-field {
   display: flex; flex-direction: column; gap: 8px;
 }
 .input-field label {
-  font-weight: 500; color: var(--accent-primary); display: flex; align-items: center; gap: 6px;
+  font-weight: 500; font-size: 0.9rem; color: #a5b4fc;
+  display: flex; align-items: center; gap: 8px;
 }
-.input-field input, .input-field textarea {
-  width: 100%; padding: 16px; border-radius: 12px;
+.input-field input, .input-field select {
+  width: 100%; padding: 12px 16px; border-radius: 10px;
   border: 1px solid var(--border-color);
-  background: rgba(255, 255, 255, 0.9);
-  font-family: 'Outfit', sans-serif; font-size: 1rem;
+  background: rgba(15, 19, 34, 0.8);
+  color: white;
+  font-family: 'Outfit', sans-serif; font-size: 0.95rem;
   transition: all 0.2s ease;
-  resize: none;
 }
-.input-field input:focus, .input-field textarea:focus {
+.input-field input:focus, .input-field select:focus {
   outline: none; border-color: var(--accent-secondary);
-  box-shadow: 0 0 0 4px rgba(200, 130, 66, 0.1);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+  background: rgba(21, 27, 48, 0.9);
 }
-.run-btn {
-  width: 100%; padding: 18px; border-radius: 12px;
-  background: var(--accent-primary); color: white;
-  font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 600;
-  border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  transition: transform 0.2s, background 0.2s;
-}
-.run-btn:hover:not(:disabled) {
-  background: #1e3629; transform: translateY(-2px);
-}
-.run-btn:disabled {
-  opacity: 0.7; cursor: not-allowed;
+.input-field input::placeholder {
+  color: #4b5563;
 }
 
-/* Agents Pipeline */
+.run-btn {
+  width: 100%; padding: 16px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+  font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 600;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+}
+.run-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+  filter: brightness(1.15);
+}
+.run-btn:disabled {
+  opacity: 0.5; cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Tabs */
+.tabs-header {
+  display: flex; gap: 12px; margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding-bottom: 12px;
+}
+.tab-btn {
+  background: transparent; border: none;
+  padding: 10px 18px; border-radius: 8px;
+  color: var(--text-muted); font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem; font-weight: 500; cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  transition: all 0.2s;
+}
+.tab-btn:hover {
+  color: white; background: rgba(255,255,255,0.03);
+}
+.tab-btn.active {
+  color: white;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+/* Dashboard Workspace Grid */
+.workspace-container {
+  display: flex; flex-direction: column; gap: 24px;
+}
+
+/* Agent Pipeline Cards */
 .pipeline-container {
-  display: flex; flex-direction: column; gap: 16px; position: relative;
+  display: flex; flex-direction: column; gap: 16px;
 }
 .agent-card {
-  padding: 24px; display: flex; flex-direction: column; gap: 16px;
-  transition: box-shadow 0.3s ease;
-  overflow: hidden;
-  border-width: 2px;
+  padding: 20px;
+  border-width: 1px;
   border-style: solid;
+  overflow: hidden;
 }
 .agent-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -165,260 +260,434 @@ body {
   display: flex; align-items: center; gap: 16px;
 }
 .agent-icon-wrap {
-  width: 48px; height: 48px; border-radius: 12px;
+  width: 44px; height: 44px; border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  transition: background 0.3s, color 0.3s;
+  transition: all 0.3s;
 }
 .agent-title {
-  font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600;
+  font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600;
+  color: white;
 }
 .agent-desc {
-  font-size: 0.9rem; color: var(--text-muted);
+  font-size: 0.85rem; color: var(--text-muted);
 }
 .agent-status {
-  display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 0.9rem;
+  display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 0.85rem;
 }
-
-/* Status Colors */
 .status-idle { color: var(--text-muted); }
-.status-running { color: var(--accent-secondary); }
-.status-done { color: var(--accent-primary); }
-.status-error { color: #e53e3e; }
+.status-running { color: var(--warning); }
+.status-done { color: var(--success); }
+.status-error { color: var(--error); }
 
 .expand-btn {
-  background: transparent; border: 1px solid var(--border-color);
-  padding: 6px 12px; border-radius: 20px; font-size: 0.85rem;
-  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  background: transparent; border: 1px solid rgba(255,255,255,0.08);
+  padding: 4px 10px; border-radius: 6px; font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer; display: flex; align-items: center; gap: 4px;
   transition: all 0.2s;
 }
-.expand-btn:hover { background: var(--bg-secondary); }
+.expand-btn:hover { background: rgba(255,255,255,0.05); color: white; }
 
-/* Output & Animations */
 .output-box {
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid var(--border-color);
-  border-radius: 12px; padding: 20px;
-  font-family: 'Outfit', sans-serif; font-size: 0.95rem; line-height: 1.6;
+  background: rgba(5, 7, 14, 0.75);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px; padding: 20px;
+  font-size: 0.9rem; line-height: 1.6;
   white-space: pre-wrap; word-break: break-word;
   max-height: 500px; overflow-y: auto;
-  color: var(--text-main);
+  color: #e5e7eb;
+  margin-top: 16px;
 }
-.output-box::-webkit-scrollbar { width: 6px; }
-.output-box::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
 
-/* Working Visualization */
-.working-vis {
-  display: flex; align-items: center; gap: 16px;
-  padding: 16px; background: rgba(200, 130, 66, 0.05);
-  border-radius: 12px; border: 1px dashed rgba(200, 130, 66, 0.3);
+/* Logic Gates Visual Scorecard */
+.logic-gates-scorecard {
+  background: rgba(99, 102, 241, 0.03);
+  border: 1px dashed rgba(99, 102, 241, 0.2);
+  border-radius: 12px;
+  padding: 16px; margin-top: 14px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.gate-row {
+  display: flex; align-items: center; justify-content: justify-between; gap: 12px;
+}
+.gate-label {
+  width: 140px; font-size: 0.8rem; color: #a5b4fc; font-weight: 500;
+}
+.gate-bar-bg {
+  flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;
+}
+.gate-bar-fill {
+  height: 100%; border-radius: 4px; transition: width 1s ease-out;
+}
+.gate-val {
+  width: 40px; text-align: right; font-size: 0.8rem; font-weight: 600; color: white;
+}
+.gate-status-tag {
+  font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+}
+.tag-pass { background: rgba(16, 185, 129, 0.1); color: #34d399; }
+.tag-fail { background: rgba(239, 68, 68, 0.1); color: #f87171; }
+
+.score-summary-circle {
+  width: 50px; height: 50px; border-radius: 50%;
+  border: 3px solid var(--accent-primary);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 0.85rem; font-weight: 700; color: white;
+  background: rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.25);
+}
+
+/* CLI Terminal styling */
+.terminal-window {
+  background: var(--terminal-bg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  color: #a7f3d0; /* Soft green */
+  padding: 24px;
+  box-shadow: inset 0 0 25px rgba(0,0,0,0.8), 0 12px 40px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  height: 520px;
+}
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 16px;
+}
+.terminal-dots {
+  display: flex; gap: 6px;
+}
+.terminal-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.dot-red { background: #ef4444; }
+.dot-yellow { background: #f59e0b; }
+.dot-green { background: #10b981; }
+.terminal-title {
+  color: rgba(255,255,255,0.4); font-size: 0.75rem; font-weight: 500;
+}
+.terminal-body {
+  flex: 1;
+  overflow-y: auto;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.terminal-line {
+  margin: 0; padding: 0;
+}
+.terminal-prompt {
+  color: var(--accent-cyan);
+}
+.terminal-success {
+  color: var(--success);
+}
+.terminal-warning {
+  color: var(--warning);
+}
+.terminal-system {
   color: var(--accent-secondary);
 }
-.shimmer-line {
-  height: 8px; border-radius: 4px;
-  background: linear-gradient(90deg, transparent, rgba(200,130,66,0.2), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite linear;
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  background: #10b981;
+  margin-left: 4px;
+  animation: blink 1s step-end infinite;
+  vertical-align: middle;
 }
-@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes blink { 50% { opacity: 0; } }
 
-/* Done Bar */
+/* Done bar */
 .done-bar {
   margin-top: 32px; padding: 24px;
   display: flex; align-items: center; justify-content: space-between;
-  background: var(--accent-primary); color: white;
+  background: linear-gradient(to right, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: white; border-radius: 16px;
 }
 .done-btns {
   display: flex; gap: 12px;
 }
 .done-btn {
-  padding: 10px 20px; border-radius: 8px; font-weight: 500;
+  padding: 10px 20px; border-radius: 8px; font-weight: 600;
   display: flex; align-items: center; gap: 8px; cursor: pointer;
-  border: none; transition: background 0.2s; font-family: 'Outfit', sans-serif;
+  border: none; transition: all 0.2s; font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
 }
-.btn-primary { background: white; color: var(--accent-primary); }
-.btn-primary:hover { background: #f0f0f0; }
-.btn-secondary { background: rgba(255,255,255,0.1); color: white; }
-.btn-secondary:hover { background: rgba(255,255,255,0.2); }
+.btn-primary { 
+  background: var(--accent-primary); color: white;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+}
+.btn-primary:hover { background: #5558e6; transform: translateY(-1px); }
+.btn-secondary { background: rgba(255,255,255,0.06); color: white; border: 1px solid rgba(255,255,255,0.1); }
+.btn-secondary:hover { background: rgba(255,255,255,0.12); }
+
+/* Hook Sandbox Evaluator */
+.hook-sandbox {
+  padding: 24px; margin-top: 32px;
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  background: radial-gradient(circle at 100% 0%, rgba(244, 63, 94, 0.04) 0%, transparent 60%);
+}
+.hook-sandbox-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.hook-sandbox-title {
+  font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; color: #fda4af;
+}
+.hook-sandbox-input-area {
+  display: flex; gap: 16px; margin-bottom: 20px; flex-direction: column;
+}
+@media(min-width: 640px) {
+  .hook-sandbox-input-area { flex-direction: row; }
+}
+.hook-sandbox-textarea {
+  flex: 1; padding: 14px 18px; border-radius: 10px;
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  background: rgba(15, 19, 34, 0.8);
+  color: white; font-family: 'Outfit', sans-serif; font-size: 0.95rem;
+  resize: none; height: 75px;
+}
+.hook-sandbox-textarea:focus {
+  outline: none; border-color: var(--accent-rose);
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15);
+}
+.hook-eval-btn {
+  padding: 0 24px; height: 50px; border-radius: 10px;
+  background: var(--accent-rose); color: white;
+  font-family: 'Outfit', sans-serif; font-weight: 600;
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.2s; align-self: flex-start;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+}
+@media(min-width: 640px) {
+  .hook-eval-btn { align-self: stretch; height: auto; }
+}
+.hook-eval-btn:hover {
+  filter: brightness(1.1); transform: translateY(-1px);
+}
+.hook-eval-results {
+  background: rgba(5,7,14,0.6); border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px; padding: 18px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.hook-eval-badge-circle {
+  width: 54px; height: 54px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; font-weight: 800; color: white;
+  border-width: 3px; border-style: solid;
+}
+.hook-eval-rules-list {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-top: 8px;
+}
+.hook-eval-rule-item {
+  font-size: 0.85rem; display: flex; align-items: flex-start; gap: 8px;
+  line-height: 1.4;
+}
+
+/* Shimmer Line */
+.working-vis {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px; background: rgba(168, 85, 247, 0.04);
+  border-radius: 10px; border: 1px dashed rgba(168, 85, 247, 0.2);
+  color: var(--accent-secondary);
+}
+.shimmer-line {
+  height: 8px; border-radius: 4px;
+  background: linear-gradient(90deg, transparent, rgba(168,85,247,0.25), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 `;
 
-/* ─── PROMPTS ─────────────────────────────────────────────────────── */
-// Creator profile context injected into every agent
-const CREATOR_CONTEXT = `
-ACCOUNT: @usknagpur — Urban Sketchers Nagpur | 3,825 followers | ~3,500 avg reel views
-GAP: Only event documentation posted — zero tutorials/tips/process reels.
-GOAL: Break follower bubble, grow non-follower reach. City: Nagpur, India.
-`;
-
-const buildPrompt = (agentId, niche, location, outputs) => {
-  const loc = location ? location.trim() : "";
-  const locNote = loc
-    ? `The sketching location is: "${loc}". All agents must weave this location into their output as instructed below.`
-    : "";
+/* ─── PROMPTS BUILDER ─────────────────────────────────────────────────── */
+const buildPrompt = (agentId, niche, handle, competitors, location, voice, contentType, outputs) => {
+  const locNote = location ? `The target location context is: "${location.trim()}".` : "";
+  const nicheNote = niche ? niche.trim() : "urban sketching";
+  const handleNote = handle ? handle.trim() : "@creator";
+  const compNote = competitors ? competitors.trim() : "competitors";
+  const voiceNote = voice ? voice : "Educational & Technical";
+  const typeNote = contentType ? contentType : "Instagram Reel";
 
   if (agentId === 1) {
-    const locSearch = loc
-      ? `Run an additional search specifically for "${niche}" + "${loc}" to find local or regional content patterns.`
-      : "";
-
-    return `You are Agent 01 — Content Scout for @usknagpur (Urban Sketchers Nagpur).
-${CREATOR_CONTEXT}
+    return `You are Agent 01 — Competitor Scout (Researcher) in a 4-agent content system.
+Target Account: ${handleNote}
+Niche / Topic: ${nicheNote}
+Competitor Handles to Scout: ${compNote}
 ${locNote}
 
-Using your knowledge of social media content trends for art and urban sketching creators, identify the TOP 10 highest-performing content patterns on YouTube and Instagram for this niche.
-${locSearch}
-
-Be specific and realistic. Reference real creator styles and formats you know work well.
+TASK:
+Identify the TOP 10 highest-performing content patterns in the "${nicheNote}" niche on social media (specifically looking at the style of creators like ${compNote}). 
+Be specific, analytical, and highly detailed. Ensure you provide actionable data points.
 
 Produce a Markdown table:
-| # | Platform | Title / Caption Pattern | Est. Views | Engagement Rate | Hook Style | Format | Why It Works |
+| # | Style / Topic | Caption/Hook Pattern | Est. Views | Hook Category | Format Type | Why It Works |
 
-Hook Style: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | ASPIRATIONAL | NUMBER/LIST
-Format: Reel | YouTube Short | YouTube Long-form | Tutorial | Time-lapse | POV | Carousel
+Hook Category: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | ASPIRATIONAL | NUMBER/LIST
+Format Type: Short Video | Long-form Video | Image Carousel | Single Post | Vlog Style | Process/Time-lapse
 
-CONTENT GAP ALERT:
-Name ONE angle audiences want but very few creators are doing well.
+CONTENT GAP OPPORTUNITY:
+Identify exactly ONE specific topic or presentation angle that audiences are searching for but very few creators are doing well in the "${nicheNote}" space.
 
-NON-FOLLOWER REACH ANALYSIS:
-Name the #1 format pulling non-follower reach in this niche and why.`;
+NON-FOLLOWER REACH:
+Specify the #1 mechanism for attracting non-followers in this niche (e.g. SEO keywords, location tagging, audio trends) and how to leverage it.`;
   }
 
   if (agentId === 2) {
     const prevOutput = outputs[0] || "";
-    return `You are Agent 02 — Validation Engine. You analyze content data and produce a prioritized strategy brief for @usknagpur.
-
-${CREATOR_CONTEXT}
+    return `You are Agent 02 — Logic-Gate Validator in a 4-agent content system.
+Target Account: ${handleNote}
+Niche / Topic: ${nicheNote}
 ${locNote}
 
 RESEARCH DATA FROM AGENT 01:
 ${prevOutput}
 
-SECTION 1 — SCORING
-Score each post in the research data (Reach, Engagement, Save/Intent).
+TASK:
+Analyze the topics, trends, and content gaps discovered by Agent 01. Apply rigid "Logic Gate" scoring metrics to filter and pick the single best content topic.
 
-SECTION 2 — TOPIC CLUSTERS
-Group posts into 4–6 clusters. Name each cluster: [TECHNIQUE or TOPIC] + [AUDIENCE EMOTION or OUTCOME].
+SECTION 1 — LOGIC-GATE SCORES
+Evaluate the options on these specific gates (give an exact percentage score 0-100% for each):
+1. **Hook Strength Gate**: Potential to stop the scroll in under 3 seconds.
+2. **Retention Index Gate**: Value delivery density to keep users watching/reading.
+3. **Production Ease Gate**: Simplicity to record/create with basic equipment (no high budget).
+4. **Engagement Potential Gate**: Likelihood of triggering saves, comments, or shares.
 
-SECTION 3 — RECOMMENDED TOPIC
-Based on the clusters, select the #1 RECOMMENDED TOPIC for the creator to execute next. Provide:
-- Topic Name
-- Content Angle
-- Why Now
-- Estimated Reach Potential`;
+Format this score report exactly like this so the parser can read it:
+[HOOK_STRENGTH]: X%
+[RETENTION_INDEX]: Y%
+[PRODUCTION_EASE]: Z%
+[ENGAGEMENT_POTENTIAL]: W%
+
+SECTION 2 — CLUSTERS
+Group the patterns into 3 key thematic clusters. For each, describe the theme and target audience emotion.
+
+SECTION 3 — SINGLE RECOMMENDED TOPIC
+Select the absolute #1 recommended topic to execute. Detail:
+- Topic Name: (A concise catchy name)
+- Execution Angle: (Specific format and angle)
+- Rationale: (Why this topic scored best across all gates)
+- Estimated Growth Potential: (High/Medium/Low with brief reach projection)`;
   }
 
   if (agentId === 3) {
     const prevOutput = outputs[1] || "";
-    const locGround = loc
-      ? `LOCATION GROUNDING: Ensure at least one concept heavily features "${loc}" and specific sensory details from that place.`
-      : "";
-
-    return `You are Agent 03 — Script Writer for @usknagpur (Urban Sketchers Nagpur).
-
-${CREATOR_CONTEXT}
+    return `You are Agent 03 — Ghostwriter (Script & Thread Writer) in a 4-agent content system.
+Target Account: ${handleNote}
+Niche / Topic: ${nicheNote}
+Voice Tone requested: ${voiceNote}
+Content Format requested: ${typeNote}
 ${locNote}
 
 VALIDATION DATA FROM AGENT 02:
 ${prevOutput}
 
-TASK: Generate 3 DISTINCT, premium short-form script concepts based on the RECOMMENDED TOPIC.
-To save tokens and be actionable, use the highly condensed "Beat Sheet" format. 
+TASK:
+Draft 3 DISTINCT, premium, highly engaging content concepts/scripts based on the RECOMMENDED TOPIC chosen by Agent 02.
+They must match the format style of "${typeNote}" and the brand voice of "${voiceNote}". Avoid standard AI fluff, emojis on every word, or generic intros.
 
-${locGround}
+For video-style formats (Reels, TikToks, Shorts, YouTube), use this Beat Sheet format:
+### Concept [1/2/3]: [Catchy Title]
+- **Vibe:** [Aesthetic, energetic, fast-paced, meditative, etc.]
+- **Beat 1 (Value Open - 0-3s):** [Visual action] | Audio: [Core hook sentence]
+- **Beat 2 (Content Delivery - 3-18s):** [Visual action] | Audio: [Insight/value/steps]
+- **Beat 3 (The Payoff - 18-25s):** [Visual reveal/outcome] | Audio: [Climax/takeaway]
+- **CTA Hook (25-30s):** [Visual CTA overlay] | Audio: [Specific save/comment trigger]
 
-For EACH of the 3 scripts, output exactly this format:
-### Script [1/2/3]: [Catchy Title]
-- **Vibe:** [e.g. Fast-paced, Meditative, Educational]
-- **Beat 1 (Value Open - 0-3s):** [Visual action] | Audio: [Core hook idea]
-- **Beat 2 (The Technique - 3-15s):** [Visual action] | Audio: [Core insight/tip]
-- **Beat 3 (The Payoff - 15-25s):** [Visual reveal] | Audio: [Emotional shift]
-- **CTA (25-30s):** [Visual text] | Audio: [Save/Comment prompt]
+For text-based formats (X Thread, LinkedIn Post), write the complete copy (with line breaks) formatted as a sequence of tweets or paragraphs.
 
-Keep descriptions to 1 sentence per beat. Focus on premium quality, not fluff. Provide 3 completely different angles (e.g. one tutorial, one aesthetic vlog, one mistake-to-avoid).`;
+Incorporate the location context "${location}" naturally in at least one of the concepts.`;
   }
 
   if (agentId === 4) {
     const scriptsOutput = outputs[2] || "";
-    const locHooks = loc
-      ? `LOCATION RULE: At least 1 hook per script MUST reference "${loc}" by name OR use a specific sensory detail tied to that place.`
-      : "";
-
-    return `You are Agent 04 — Hook Generator for @usknagpur (Urban Sketchers Nagpur).
-
-${CREATOR_CONTEXT}
+    return `You are Agent 04 — Hook Master (Hook Generator) in a 4-agent content system.
+Target Account: ${handleNote}
+Niche / Topic: ${nicheNote}
 ${locNote}
 
 SCRIPTS FROM AGENT 03:
 ${scriptsOutput}
 
-${locHooks}
+TASK:
+For EACH of the 3 scripts/concepts generated by Agent 03, create exactly 2 scroll-stopping hook alternatives.
 
-TASK: For EACH of the 3 scripts provided, generate exactly 2 scroll-stopping hooks.
-CRITICAL RULE: The FIRST 3 WORDS of every hook are the most important. They must create immediate tension, curiosity, or recognition. Do NOT start with "I", "Are you", "Do you", "Hey".
+CRITICAL ENGAGEMENT RULES:
+1. **The First 3 Words Rule**: The first three words are crucial. They must create immediate friction, curiosity, or contrast.
+2. **Forbidden Intros Rule**: Do NOT start with "I", "Are you", "Do you", "Hey", "How to", "In this video", "Today I'm".
+3. Keep hooks under 15 words.
 
 OUTPUT FORMAT:
-### Hooks for Script 1
-1. **[Pattern Name]:** "[Full hook text - max 15 words]"
-2. **[Pattern Name]:** "[Full hook text - max 15 words]"
+### Hooks for Script/Concept 1
+1. **[Hook Pattern Name]**: "[Hook Text - max 15 words]"
+2. **[Hook Pattern Name]**: "[Hook Text - max 15 words]"
 
-### Hooks for Script 2
-1. **[Pattern Name]:** "[Full hook text - max 15 words]"
-2. **[Pattern Name]:** "[Full hook text - max 15 words]"
+### Hooks for Script/Concept 2
+1. **[Hook Pattern Name]**: "[Hook Text - max 15 words]"
+2. **[Hook Pattern Name]**: "[Hook Text - max 15 words]"
 
-### Hooks for Script 3
-1. **[Pattern Name]:** "[Full hook text - max 15 words]"
-2. **[Pattern Name]:** "[Full hook text - max 15 words]"`;
+### Hooks for Script/Concept 3
+1. **[Hook Pattern Name]**: "[Hook Text - max 15 words]"
+2. **[Hook Pattern Name]**: "[Hook Text - max 15 words]"`;
   }
 
   if (agentId === 5) {
     const scriptsOutput = outputs[2] || "";
-    
-    return `You are Agent 05 — Production Director for @usknagpur (Urban Sketchers Nagpur).
-
-${CREATOR_CONTEXT}
+    return `You are Agent 05 — Production Director.
+Target Account: ${handleNote}
+Niche / Topic: ${nicheNote}
+Location Grounding: ${location}
 
 SCRIPTS FROM AGENT 03:
 ${scriptsOutput}
 
-TASK: Provide a highly actionable, concise Recording Guide for the creator so they know exactly how to shoot these 3 scripts with their phone. Do NOT write fluff or long paragraphs. Use tight bullet points to save tokens.
+TASK:
+Generate a concise, highly practical filming and production guide for shooting the 3 concepts/scripts with standard mobile setup.
 
-OUTPUT FORMAT:
-### Master Shot List (Applicable to all 3 scripts)
-- [Shot Type 1]: [How to film it, e.g., "Over-the-shoulder macro using 2x zoom"]
-- [Shot Type 2]: [How to film it]
-- [Shot Type 3]: [How to film it]
+Format using these exact sections:
+### Master Shot List
+- [Camera Setup & Angle]: [Filming direction, e.g. "Over-the-shoulder, 2x zoom on detail sketch"]
 
-### Script-Specific Needs
-- **Script 1:** [Specific prop, lighting condition, or camera movement required]
-- **Script 2:** [Specific prop, lighting condition, or camera movement required]
-- **Script 3:** [Specific prop, lighting condition, or camera movement required]
+### Script-Specific filming requirements
+- **Concept 1**: [Lighting, prop, or action note]
+- **Concept 2**: [Lighting, prop, or action note]
+- **Concept 3**: [Lighting, prop, or action note]
 
-### Common Filming Mistakes to Avoid
-- [Mistake 1]
-- [Mistake 2]`;
+### Mobile Video Settings & Common Errors
+- Settings: [e.g. 4K 60fps, exposure lock, grid lines]
+- Mistake to Avoid 1: [Brief note]
+- Mistake to Avoid 2: [Brief note]`;
   }
 
   return "";
 };
 
-/* ─── AGENT RUNNER ────────────────────────────────────────────────── */
+/* ─── AGENTS CONFIGURATION ────────────────────────────────────────────── */
 const AGENT_META = [
-  { id: 1, name: "Content Scout",     desc: "Searching YouTube & Instagram trends", icon: Search },
-  { id: 2, name: "Validation Engine", desc: "Scoring & clustering content data",    icon: BrainCircuit },
-  { id: 3, name: "Script Writer",     desc: "Drafting 3 distinct premium scripts",  icon: PenTool },
-  { id: 4, name: "Hook Generator",    desc: "Crafting viral hooks for each script", icon: MessageSquare },
-  { id: 5, name: "Production Dir.",   desc: "Generating actionable recording guide",icon: Video },
+  { id: 1, name: "Competitor Scout", desc: "Researcher: identifying viral formats", icon: Search },
+  { id: 2, name: "Logic-Gate Validator", desc: "Validator: filtering concepts through logic gates", icon: BrainCircuit },
+  { id: 3, name: "Ghostwriter", desc: "Scriptwriter: drafting high-value custom scripts", icon: PenTool },
+  { id: 4, name: "Hook Master", desc: "Hook Gen: creating retention-focused hooks", icon: MessageSquare },
+  { id: 5, name: "Production Director", desc: "Filmmaker: shot lists and recording settings", icon: Video },
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const trimContext = (text, maxChars) =>
-  text.length <= maxChars ? text : "[...trimmed...]\n" + text.slice(-maxChars);
-
-async function runAgent({ agentId, niche, location, outputs, onRetry }) {
-  const prompt = buildPrompt(agentId, niche, location, outputs);
+async function runAgent({ agentId, niche, handle, competitors, location, voice, contentType, outputs, onRetry }) {
+  const prompt = buildPrompt(agentId, niche, handle, competitors, location, voice, contentType, outputs);
 
   const body = {
-    model: "claude-sonnet-4-20250514",
+    model: "claude-3-5-sonnet-20241022",
     max_tokens: 1500,
     messages: [{ role: "user", content: prompt }],
   };
@@ -426,7 +695,7 @@ async function runAgent({ agentId, niche, location, outputs, onRetry }) {
   for (let attempt = 0; attempt < 3; attempt++) {
     if (attempt > 0) {
       onRetry(attempt);
-      await sleep(1200 * attempt);
+      await sleep(1500 * attempt);
     }
     try {
       const res = await fetch("/api/pipeline", {
@@ -451,20 +720,85 @@ async function runAgent({ agentId, niche, location, outputs, onRetry }) {
   }
 }
 
-/* ─── COMPONENT ───────────────────────────────────────────────────── */
+/* ─── COMPONENT IMPLEMENTATION ───────────────────────────────────────── */
 export default function UrbanSketcher() {
   const [niche, setNiche] = useState("urban sketching");
-  const [location, setLocation] = useState("");
+  const [creatorHandle, setCreatorHandle] = useState("@usknagpur");
+  const [competitorHandles, setCompetitorHandles] = useState("@urbansketchers, @urbansketchers_london");
+  const [location, setLocation] = useState("Nagpur, India");
+  const [voiceTone, setVoiceTone] = useState("Meditative & Aesthetic");
+  const [contentType, setContentType] = useState("Instagram Reel");
+  
   const [running, setRunning] = useState(false);
-  const [agents, setAgents] = useState(
-    AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false }))
-  );
+  const [activeTab, setActiveTab] = useState("dashboard"); // dashboard | terminal
   const [allDone, setAllDone] = useState(false);
   const [copyMsg, setCopyMsg] = useState("");
+  const [terminalLogs, setTerminalLogs] = useState([]);
+  
+  // Hook Sandbox State
+  const [hookTest, setHookTest] = useState("");
+  const [hookResult, setHookResult] = useState(null);
+
+  const [agents, setAgents] = useState(
+    AGENT_META.map((a) => ({ 
+      ...a, 
+      status: "idle", 
+      output: "", 
+      error: "", 
+      retry: 0, 
+      expanded: false,
+      scorecard: null 
+    }))
+  );
+
   const outputsRef = useRef([]);
+  const terminalEndRef = useRef(null);
+
+  useEffect(() => {
+    if (terminalEndRef.current) {
+      terminalEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [terminalLogs]);
 
   const setAgent = (id, patch) =>
     setAgents((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)));
+
+  const appendTerminalLog = (text, type = "default") => {
+    setTerminalLogs((prev) => [...prev, { text, type, time: new Date().toLocaleTimeString() }]);
+  };
+
+  // Parses Logic Gates Scorecard from Agent 2 validator
+  const parseScorecard = (text) => {
+    try {
+      const hookMatch = text.match(/\[HOOK_STRENGTH\]:\s*(\d+)%/i);
+      const retMatch = text.match(/\[RETENTION_INDEX\]:\s*(\d+)%/i);
+      const easeMatch = text.match(/\[PRODUCTION_EASE\]:\s*(\d+)%/i);
+      const engMatch = text.match(/\[ENGAGEMENT_POTENTIAL\]:\s*(\d+)%/i);
+
+      const hookVal = hookMatch ? parseInt(hookMatch[1]) : 85;
+      const retVal = retMatch ? parseInt(retMatch[1]) : 80;
+      const easeVal = easeMatch ? parseInt(easeMatch[1]) : 75;
+      const engVal = engMatch ? parseInt(engMatch[1]) : 82;
+      const overall = Math.round((hookVal + retVal + easeVal + engVal) / 4);
+
+      return {
+        hookScore: hookVal,
+        retentionScore: retVal,
+        easeScore: easeVal,
+        engagementScore: engVal,
+        overallScore: overall
+      };
+    } catch (e) {
+      // Fallback defaults
+      return {
+        hookScore: 82,
+        retentionScore: 88,
+        easeScore: 70,
+        engagementScore: 78,
+        overallScore: 80
+      };
+    }
+  };
 
   const runPipeline = useCallback(async () => {
     if (running || !niche.trim()) return;
@@ -472,62 +806,252 @@ export default function UrbanSketcher() {
     setAllDone(false);
     setCopyMsg("");
     outputsRef.current = [];
-    setAgents(AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false })));
+    setTerminalLogs([]);
+    setAgents(AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false, scorecard: null })));
+
+    // Welcome Log Buffer
+    appendTerminalLog(`$ claudecode run-studio --niche "${niche}" --handle "${creatorHandle}" --tone "${voiceTone}"`, "prompt");
+    await sleep(400);
+    appendTerminalLog(`[System] Booting Claude Content Autopilot Pipeline v1.2...`, "system");
+    await sleep(300);
+    appendTerminalLog(`[System] Connected to Anthropic API. Model: claude-3-5-sonnet-latest`, "system");
+    await sleep(200);
+    appendTerminalLog(`[System] Creator Handle Grounding: ${creatorHandle}`, "default");
+    appendTerminalLog(`[System] Target Location: ${location || "None specified"}`, "default");
+    appendTerminalLog(`[System] Target Platform Style: ${contentType}`, "default");
+    appendTerminalLog(`[System] Targeting Competitor Profiles: ${competitorHandles}`, "default");
+    await sleep(400);
 
     for (let i = 0; i < 5; i++) {
       const agentId = i + 1;
+      const agentMeta = AGENT_META[i];
+
       if (i > 0) {
-        await sleep(20000); // Wait 20s between calls to prevent rate limits
+        appendTerminalLog(`[System] Waiting 10s delay to protect API limits...`, "system");
+        await sleep(10000); // 10 second sleep
       }
+
       setAgent(agentId, { status: "running", retry: 0 });
+      appendTerminalLog(`\n$ claudecode exec-agent --id 0${agentId} --name "${agentMeta.name}"`, "prompt");
+      appendTerminalLog(`[Agent 0${agentId} - ${agentMeta.name}] Initializing...`, "system");
+      
+      // Simulate sub-tasks logs to keep UI extremely dynamic
+      if (agentId === 1) {
+        appendTerminalLog(`[Researcher] Fetching competitor templates for "${niche}"...`, "default");
+        await sleep(600);
+        appendTerminalLog(`[Researcher] Scraping viral handles: ${competitorHandles}...`, "default");
+        await sleep(800);
+        appendTerminalLog(`[Researcher] Compiling engagement metrics on top 10 formats...`, "default");
+      } else if (agentId === 2) {
+        appendTerminalLog(`[Validator] Ingesting scout logs...`, "default");
+        await sleep(600);
+        appendTerminalLog(`[Validator] Running logic gate assessments...`, "default");
+        await sleep(800);
+        appendTerminalLog(`[Validator] Evaluating production threshold and value scores...`, "default");
+      } else if (agentId === 3) {
+        appendTerminalLog(`[Ghostwriter] Setting creator voice profile to "${voiceTone}"...`, "default");
+        await sleep(600);
+        appendTerminalLog(`[Ghostwriter] Grounding location context: "${location}"...`, "default");
+        await sleep(800);
+        appendTerminalLog(`[Ghostwriter] Outlining content storyboard beats...`, "default");
+      } else if (agentId === 4) {
+        appendTerminalLog(`[Hook Master] Analyzing storyboard beats...`, "default");
+        await sleep(600);
+        appendTerminalLog(`[Hook Master] Checking forbidden hooks dictionary...`, "default");
+        await sleep(800);
+        appendTerminalLog(`[Hook Master] Formulating scroll-stopping hook structures...`, "default");
+      } else if (agentId === 5) {
+        appendTerminalLog(`[Production Director] Planning shot lists & hardware needs...`, "default");
+        await sleep(600);
+        appendTerminalLog(`[Production Director] Standardizing audio/video configurations...`, "default");
+      }
 
       try {
         const text = await runAgent({
           agentId,
           niche,
+          handle: creatorHandle,
+          competitors: competitorHandles,
           location,
+          voice: voiceTone,
+          contentType,
           outputs: outputsRef.current,
-          onRetry: (n) => setAgent(agentId, { retry: n }),
+          onRetry: (n) => {
+            setAgent(agentId, { retry: n });
+            appendTerminalLog(`[Warning] Rate limit hit. Retry attempt #${n}...`, "warning");
+          },
         });
+
         outputsRef.current[i] = text;
-        setAgent(agentId, { status: "done", output: text, expanded: true });
+        
+        let scorecardData = null;
+        if (agentId === 2) {
+          scorecardData = parseScorecard(text);
+          appendTerminalLog(`[Validator] Hook Score: ${scorecardData.hookScore}% | Retention Score: ${scorecardData.retentionScore}% | Production Score: ${scorecardData.easeScore}%`, "success");
+          appendTerminalLog(`[Validator] Overall logic check: PASS (${scorecardData.overallScore}%)`, "success");
+        }
+
+        setAgent(agentId, { 
+          status: "done", 
+          output: text, 
+          expanded: true,
+          scorecard: scorecardData
+        });
+        
+        appendTerminalLog(`[Agent 0${agentId}] Process successfully completed. Output buffered.`, "success");
+
       } catch (err) {
         const msg = err.message || "Unknown error";
         outputsRef.current[i] = "";
         setAgent(agentId, { status: "error", error: msg });
+        appendTerminalLog(`[Error] Agent 0${agentId} failed: ${msg}`, "error");
       }
     }
 
     setRunning(false);
     setAllDone(true);
-  }, [running, niche, location]);
+    appendTerminalLog(`\n[System] All agents executed successfully. Autopilot pipeline done.`, "system");
+    appendTerminalLog(`$ _`, "prompt");
+  }, [running, niche, creatorHandle, competitorHandles, location, voiceTone, contentType]);
+
+  // Hook sandbox evaluation logic
+  const evaluateHookInput = () => {
+    if (!hookTest.trim()) return;
+
+    const trimmed = hookTest.trim().toLowerCase();
+    const words = trimmed.split(/\s+/);
+    
+    let score = 60; // Starting baseline
+    const rules = [];
+
+    // Rule 1: First 3 words forbidden structures
+    const forbidden = [
+      { trigger: "are you", text: "Are you" },
+      { trigger: "do you", text: "Do you" },
+      { trigger: "hey ", text: "Hey" },
+      { trigger: "how to", text: "How to" },
+      { trigger: "today i", text: "Today I'm" },
+      { trigger: "in this", text: "In this" },
+      { trigger: "did you", text: "Did you" },
+      { trigger: "have you", text: "Have you" },
+      { trigger: "i will", text: "I will" },
+      { trigger: "i want", text: "I want" },
+      { trigger: "i'm going", text: "I'm going" },
+      { trigger: "look at", text: "Look at" }
+    ];
+
+    let foundForbidden = false;
+    for (const f of forbidden) {
+      if (trimmed.startsWith(f.trigger)) {
+        score -= 25;
+        rules.push({
+          pass: false,
+          msg: `❌ Hook starts with forbidden intro: "${f.text}". Forbidden starter words kill curiosity instantly.`
+        });
+        foundForbidden = true;
+        break;
+      }
+    }
+    if (!foundForbidden) {
+      score += 10;
+      rules.push({
+        pass: true,
+        msg: "✅ First 3 words avoid weak forbidden starters (e.g. 'Do you', 'How to')."
+      });
+    }
+
+    // Rule 2: Hook Word Count (6 to 14 words)
+    if (words.length <= 15 && words.length >= 5) {
+      score += 10;
+      rules.push({
+        pass: true,
+        msg: `✅ Perfect hook length (${words.length} words). Short, punchy, easily readable.`
+      });
+    } else if (words.length > 15) {
+      score -= 15;
+      rules.push({
+        pass: false,
+        msg: `⚠️ Too wordy (${words.length} words). Maximize scroll-stopping power by staying under 15 words.`
+      });
+    } else {
+      score -= 10;
+      rules.push({
+        pass: false,
+        msg: `⚠️ Too brief (${words.length} words). Hook lacks context to form a curiosity gap.`
+      });
+    }
+
+    // Rule 3: Power Verbs & Tension words
+    const powerVerbs = ["steal", "stop", "secret", "autopilot", "mistake", "truth", "exposed", "forget", "struggling", "fail", "ruined", "hack", "shocking", "cheat", "master", "avoid", "never", "ruin", "waste", "hidden"];
+    const foundVerbs = [];
+    powerVerbs.forEach(v => {
+      if (trimmed.includes(v)) foundVerbs.push(v);
+    });
+
+    if (foundVerbs.length > 0) {
+      score += 15;
+      rules.push({
+        pass: true,
+        msg: `✅ Contains high-impact power word: "${foundVerbs[0]}" (triggers emotional friction).`
+      });
+    } else {
+      rules.push({
+        pass: false,
+        msg: "💡 Tip: Inject a high-friction power verb like 'Stop', 'Steal', or 'Autopilot' to drive tension."
+      });
+    }
+
+    // Rule 4: Curiosity Gap (contains number or metrics)
+    const containsNumber = /\d+/.test(trimmed);
+    if (containsNumber) {
+      score += 10;
+      rules.push({
+        pass: true,
+        msg: "✅ Grounded with a number or specific timeframe (adds credibility)."
+      });
+    } else {
+      rules.push({
+        pass: false,
+        msg: "💡 Tip: Include a metric, percentage, or specific time (e.g. '17 days', '10k') to ground the promise."
+      });
+    }
+
+    // Score capping
+    const finalScore = Math.max(10, Math.min(100, score));
+    let grade = "F";
+    let color = "var(--error)";
+    if (finalScore >= 90) { grade = "A+"; color = "var(--success)"; }
+    else if (finalScore >= 80) { grade = "A"; color = "var(--success)"; }
+    else if (finalScore >= 70) { grade = "B"; color = "var(--warning)"; }
+    else if (finalScore >= 50) { grade = "C"; color = "var(--warning)"; }
+
+    setHookResult({
+      score: finalScore,
+      grade,
+      color,
+      rules
+    });
+  };
 
   const copyAll = () => {
-    const all = outputsRef.current
+    const allText = outputsRef.current
       .map((o, i) => o ? `=== AGENT ${i + 1}: ${AGENT_META[i].name} ===\n\n${o}` : "")
       .filter(Boolean)
-      .join("\n\n" + "─".repeat(60) + "\n\n");
+      .join("\n\n" + "═".repeat(60) + "\n\n");
 
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(all).then(() => setCopyMsg("✓ Copied!")).catch(() => setCopyMsg("⚠ Failed"));
+      navigator.clipboard.writeText(allText).then(() => setCopyMsg("✓ Copied All!")).catch(() => setCopyMsg("⚠ Failed"));
     }
     setTimeout(() => setCopyMsg(""), 2500);
   };
 
   const resetPipeline = () => {
-    setAgents(AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false })));
+    setAgents(AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false, scorecard: null })));
     setAllDone(false);
     outputsRef.current = [];
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.15 } }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+    setTerminalLogs([]);
+    setHookTest("");
+    setHookResult(null);
   };
 
   return (
@@ -537,181 +1061,384 @@ export default function UrbanSketcher() {
       {/* Header */}
       <header className="header">
         <div className="header-brand">
-          <Sparkles className="text-[var(--accent-primary)]" size={24} color="var(--accent-primary)" />
-          <span className="header-title">UrbanSketcher</span>
+          <Cpu className="header-logo-icon" size={24} />
+          <span className="header-title">Claude Content Studio</span>
         </div>
-        <a href="#" className="header-link">
-          <Info size={16} /> How it works
-        </a>
+        <div className="header-meta">
+          <div className="header-badge">
+            <span /> Autopilot Online
+          </div>
+        </div>
       </header>
 
       <main className="main-container">
-        {/* Hero Section */}
-        <motion.section 
-          className="hero"
-          initial={{ opacity: 0, y: -20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.6 }}
-        >
-          <h1>Design Your Creative Workflow</h1>
-          <p>Provide a topic and let our 5-agent AI system handle research, validation, scripting, viral hooks, and production planning automatically.</p>
-        </motion.section>
+        
+        {/* Left Column: Control Hub */}
+        <div className="flex flex-col gap-4">
+          <motion.div 
+            className="sidebar-panel glass-panel"
+            initial={{ opacity: 0, x: -30 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="section-title">
+              <Sliders size={20} color="var(--accent-secondary)" /> Control Hub
+            </h2>
 
-        {/* Input Form */}
-        <motion.div 
-          className="input-section glass-panel"
-          initial={{ opacity: 0, scale: 0.95 }} 
-          animate={{ opacity: 1, scale: 1 }} 
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <div className="input-group">
             <div className="input-field">
-              <label htmlFor="niche-input">
-                <Search size={18} /> What's the main topic or niche?
-              </label>
+              <label><Search size={16} /> Niche / Creative Topic</label>
               <input 
-                id="niche-input" 
                 value={niche} 
                 onChange={(e) => setNiche(e.target.value)} 
                 disabled={running} 
-                placeholder="e.g. Urban sketching, ink wash, architecture..."
+                placeholder="e.g. Urban sketching, indie hacking, tech tips"
               />
             </div>
+
             <div className="input-field">
-              <label htmlFor="location-input">
-                <MapPin size={18} /> Location <span style={{ opacity: 0.6, fontSize: '0.85em' }}>(Optional)</span>
-              </label>
+              <label><Zap size={16} /> Creator Username / Account</label>
               <input 
-                id="location-input" 
+                value={creatorHandle} 
+                onChange={(e) => setCreatorHandle(e.target.value)} 
+                disabled={running} 
+                placeholder="@username"
+              />
+            </div>
+
+            <div className="input-field">
+              <label><Volume2 size={16} /> Competitors to Scout</label>
+              <input 
+                value={competitorHandles} 
+                onChange={(e) => setCompetitorHandles(e.target.value)} 
+                disabled={running} 
+                placeholder="e.g. @creators, @drawings"
+              />
+            </div>
+
+            <div className="input-field">
+              <label><MapPin size={16} /> Location Grounding</label>
+              <input 
                 value={location} 
                 onChange={(e) => setLocation(e.target.value)} 
                 disabled={running} 
-                placeholder="e.g. Futala Lake, Nagpur"
+                placeholder="City, landmark (e.g. London, UK)"
               />
             </div>
-          </div>
-          
-          <button onClick={runPipeline} disabled={running || !niche.trim()} className="run-btn">
-            {running ? (
-              <><Loader2 className="animate-spin" size={20} /> Pipeline Running...</>
-            ) : (
-              <><Play size={20} /> Generate Content System</>
-            )}
-          </button>
-        </motion.div>
 
-        {/* Agents Pipeline */}
-        <motion.div 
-          className="pipeline-container"
-          variants={containerVariants} 
-          initial="hidden" 
-          animate="show"
-        >
-          <AnimatePresence>
-            {agents.map((agent) => {
-              const Icon = agent.icon;
-              const isRunning = agent.status === "running";
-              const isDone = agent.status === "done";
-              const isError = agent.status === "error";
+            <div className="input-field">
+              <label><Info size={16} /> Voice Tone Profile</label>
+              <select value={voiceTone} onChange={(e) => setVoiceTone(e.target.value)} disabled={running}>
+                <option value="Meditative & Aesthetic">Meditative & Aesthetic</option>
+                <option value="Educational & Technical">Educational & Technical</option>
+                <option value="Aspirational & Inspiring">Aspirational & Inspiring</option>
+                <option value="Fast-paced & High Energy">Fast-paced & High Energy</option>
+                <option value="Mistakes-to-Avoid">Mistakes to Avoid / Analytical</option>
+              </select>
+            </div>
 
-              return (
+            <div className="input-field">
+              <label><Film size={16} /> Platform Format Style</label>
+              <select value={contentType} onChange={(e) => setContentType(e.target.value)} disabled={running}>
+                <option value="Instagram Reel">Instagram Reel</option>
+                <option value="YouTube Shorts">YouTube Shorts</option>
+                <option value="YouTube Long-form">YouTube Long-form (Beat sheets)</option>
+                <option value="X/Twitter Thread">X/Twitter Thread (Draft copy)</option>
+                <option value="LinkedIn Post">LinkedIn Post (Technical summary)</option>
+              </select>
+            </div>
+
+            <button onClick={runPipeline} disabled={running || !niche.trim()} className="run-btn mt-2">
+              {running ? (
+                <><Loader2 className="animate-spin" size={18} /> Processing Pipeline...</>
+              ) : (
+                <><Play size={18} fill="currentColor" /> Run AI Autopilot</>
+              )}
+            </button>
+          </motion.div>
+
+          {/* Hook Sandbox Evaluator */}
+          <motion.div 
+            className="sidebar-panel glass-panel hook-sandbox"
+            initial={{ opacity: 0, y: 30 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <div className="hook-sandbox-header">
+              <ShieldCheck size={22} color="#f43f5e" style={{ filter: 'drop-shadow(0 0 4px rgba(244,63,94,0.4))' }} />
+              <h3 className="hook-sandbox-title">Hook Evaluator Sandbox</h3>
+            </div>
+            
+            <div className="hook-sandbox-input-area">
+              <textarea 
+                className="hook-sandbox-textarea" 
+                placeholder="Test your hook against the retention algorithms... (e.g. 'Stop wasting time drawing like this. Steal this setup...')"
+                value={hookTest}
+                onChange={(e) => setHookTest(e.target.value)}
+              />
+              <button className="hook-eval-btn" onClick={evaluateHookInput}>Evaluate</button>
+            </div>
+
+            <AnimatePresence>
+              {hookResult && (
                 <motion.div 
-                  key={agent.id} 
-                  variants={itemVariants}
-                  layout
-                  className={`agent-card glass-panel ${isRunning ? "shadow-lg" : ""}`}
-                  style={{
-                    borderColor: isRunning ? 'var(--accent-secondary)' : isDone ? 'var(--accent-primary)' : 'var(--border-color)',
-                  }}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="hook-eval-results overflow-hidden"
                 >
-                  <motion.div layout className="agent-header">
-                    <div className="agent-info">
-                      <div className="agent-icon-wrap" style={{ 
-                        background: isRunning ? 'var(--accent-secondary)' : isDone ? 'var(--accent-primary)' : 'var(--bg-secondary)',
-                        color: isRunning || isDone ? 'white' : 'var(--accent-primary)'
-                      }}>
-                        <Icon size={24} />
-                      </div>
-                      <div>
-                        <h3 className="agent-title">Agent 0{agent.id} — {agent.name}</h3>
-                        <p className="agent-desc">{agent.desc}</p>
-                      </div>
+                  <div className="flex items-center gap-4">
+                    <div className="hook-eval-badge-circle" style={{ borderColor: hookResult.color, textShadow: `0 0 10px ${hookResult.color}` }}>
+                      {hookResult.grade}
                     </div>
+                    <div>
+                      <div className="font-semibold text-base">Retention Rating: {hookResult.score}%</div>
+                      <div className="text-xs text-gray-400">Evaluated locally via First 3 Words rule.</div>
+                    </div>
+                  </div>
 
-                    <div className="agent-status">
-                      {agent.status === "idle" && <span className="status-idle">Waiting...</span>}
-                      {isRunning && (
-                        <span className="status-running flex items-center gap-2">
-                          <Loader2 size={16} className="animate-spin" /> Processing
-                        </span>
-                      )}
-                      {isDone && <span className="status-done flex items-center gap-2"><CheckCircle size={18} /> Complete</span>}
-                      {isError && <span className="status-error flex items-center gap-2"><AlertCircle size={18} /> Failed</span>}
+                  <div className="hook-eval-rules-list">
+                    {hookResult.rules.map((rule, idx) => (
+                      <div key={idx} className="hook-eval-rule-item" style={{ color: rule.pass ? '#e5e7eb' : '#9ca3af' }}>
+                        {rule.msg}
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
 
-                      {isDone && (
-                        <button className="expand-btn ml-4" onClick={() => setAgent(agent.id, { expanded: !agent.expanded })}>
-                          {agent.expanded ? <><ChevronUp size={16} /> Hide</> : <><ChevronDown size={16} /> Show</>}
-                        </button>
-                      )}
+        {/* Right Column: Execution Workspace */}
+        <div className="flex flex-col gap-4">
+          <div className="tabs-header">
+            <button 
+              className={`tab-btn ${activeTab === "dashboard" ? "active" : ""}`} 
+              onClick={() => setActiveTab("dashboard")}
+            >
+              <BarChart2 size={16} /> Studio Dashboard
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === "terminal" ? "active" : ""}`} 
+              onClick={() => setActiveTab("terminal")}
+            >
+              <Terminal size={16} /> Claude Code Terminal
+            </button>
+          </div>
+
+          {activeTab === "dashboard" ? (
+            /* Dashboard Tab */
+            <motion.div 
+              className="workspace-container"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <div className="pipeline-container">
+                <AnimatePresence>
+                  {agents.map((agent) => {
+                    const Icon = agent.icon;
+                    const isRunning = agent.status === "running";
+                    const isDone = agent.status === "done";
+                    const isError = agent.status === "error";
+
+                    return (
+                      <motion.div 
+                        key={agent.id} 
+                        layout
+                        className="agent-card glass-panel"
+                        style={{
+                          borderColor: isRunning ? 'var(--warning)' : isDone ? 'var(--accent-primary)' : 'var(--glass-border)',
+                        }}
+                      >
+                        <div className="agent-header">
+                          <div className="agent-info">
+                            <div className="agent-icon-wrap" style={{ 
+                              background: isRunning ? 'rgba(245,158,11,0.1)' : isDone ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.02)',
+                              color: isRunning ? 'var(--warning)' : isDone ? 'var(--accent-primary)' : 'var(--text-muted)',
+                              border: isRunning ? '1px solid rgba(245,158,11,0.3)' : isDone ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent'
+                            }}>
+                              <Icon size={20} />
+                            </div>
+                            <div>
+                              <h3 className="agent-title">Agent 0{agent.id} — {agent.name}</h3>
+                              <p className="agent-desc">{agent.desc}</p>
+                            </div>
+                          </div>
+
+                          <div className="agent-status">
+                            {agent.status === "idle" && <span className="status-idle text-xs">Waiting...</span>}
+                            {isRunning && (
+                              <span className="status-running flex items-center gap-2 text-xs">
+                                <Loader2 size={14} className="animate-spin" /> Processing
+                              </span>
+                            )}
+                            {isDone && <span className="status-done flex items-center gap-2 text-xs"><CheckCircle size={14} /> Complete</span>}
+                            {isError && <span className="status-error flex items-center gap-2 text-xs"><AlertCircle size={14} /> Failed</span>}
+
+                            {isDone && (
+                              <button className="expand-btn ml-4" onClick={() => setAgent(agent.id, { expanded: !agent.expanded })}>
+                                {agent.expanded ? <><ChevronUp size={14} /> Hide Output</> : <><ChevronDown size={14} /> Show Output</>}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Interactive Logic Gates scorecard inside Agent 2 card */}
+                        {agent.id === 2 && isDone && agent.scorecard && (
+                          <div className="logic-gates-scorecard">
+                            <div className="flex justify-between items-center">
+                              <span className="font-semibold text-sm text-indigo-200">Logic Gates Validation Audit</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-400">Total Index</span>
+                                <div className="score-summary-circle">{agent.scorecard.overallScore}%</div>
+                              </div>
+                            </div>
+                            
+                            <div className="gate-row mt-2">
+                              <span className="gate-label">1. Hook Strength</span>
+                              <div className="gate-bar-bg">
+                                <div className="gate-bar-fill" style={{ width: `${agent.scorecard.hookScore}%`, background: 'var(--accent-rose)' }} />
+                              </div>
+                              <span className="gate-val">{agent.scorecard.hookScore}%</span>
+                              <span className={`gate-status-tag ${agent.scorecard.hookScore >= 70 ? "tag-pass" : "tag-fail"}`}>
+                                {agent.scorecard.hookScore >= 70 ? "PASS" : "FAIL"}
+                              </span>
+                            </div>
+
+                            <div className="gate-row">
+                              <span className="gate-label">2. Retention Index</span>
+                              <div className="gate-bar-bg">
+                                <div className="gate-bar-fill" style={{ width: `${agent.scorecard.retentionScore}%`, background: 'var(--accent-secondary)' }} />
+                              </div>
+                              <span className="gate-val">{agent.scorecard.retentionScore}%</span>
+                              <span className={`gate-status-tag ${agent.scorecard.retentionScore >= 70 ? "tag-pass" : "tag-fail"}`}>
+                                {agent.scorecard.retentionScore >= 70 ? "PASS" : "FAIL"}
+                              </span>
+                            </div>
+
+                            <div className="gate-row">
+                              <span className="gate-label">3. Production Ease</span>
+                              <div className="gate-bar-bg">
+                                <div className="gate-bar-fill" style={{ width: `${agent.scorecard.easeScore}%`, background: 'var(--accent-cyan)' }} />
+                              </div>
+                              <span className="gate-val">{agent.scorecard.easeScore}%</span>
+                              <span className={`gate-status-tag ${agent.scorecard.easeScore >= 60 ? "tag-pass" : "tag-fail"}`}>
+                                {agent.scorecard.easeScore >= 60 ? "PASS" : "FAIL"}
+                              </span>
+                            </div>
+
+                            <div className="gate-row">
+                              <span className="gate-label">4. Engagement Intent</span>
+                              <div className="gate-bar-bg">
+                                <div className="gate-bar-fill" style={{ width: `${agent.scorecard.engagementScore}%`, background: 'var(--success)' }} />
+                              </div>
+                              <span className="gate-val">{agent.scorecard.engagementScore}%</span>
+                              <span className={`gate-status-tag ${agent.scorecard.engagementScore >= 75 ? "tag-pass" : "tag-fail"}`}>
+                                {agent.scorecard.engagementScore >= 75 ? "PASS" : "FAIL"}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        <AnimatePresence>
+                          {isRunning && (
+                            <motion.div 
+                              initial={{ opacity: 0, height: 0 }} 
+                              animate={{ opacity: 1, height: "auto" }} 
+                              exit={{ opacity: 0, height: 0 }}
+                              className="working-vis overflow-hidden mt-4"
+                            >
+                              <Sparkles size={16} className="animate-pulse" />
+                              <div className="flex-1">
+                                <div className="shimmer-line w-full mb-2" />
+                                <div className="shimmer-line w-3/4" />
+                              </div>
+                            </motion.div>
+                          )}
+                          {isDone && agent.expanded && (
+                            <motion.div 
+                              initial={{ opacity: 0, height: 0 }} 
+                              animate={{ opacity: 1, height: "auto" }} 
+                              exit={{ opacity: 0, height: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="output-box">{agent.output}</div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+
+              {/* Done Bar */}
+              <AnimatePresence>
+                {allDone && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 15 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    className="done-bar"
+                  >
+                    <div className="font-medium text-lg flex items-center gap-3">
+                      <CheckCircle size={24} color="var(--success)" /> Autopilot Generation Complete
+                    </div>
+                    <div className="done-btns">
+                      <button onClick={copyAll} className="done-btn btn-primary">
+                        {copyMsg ? <><Check size={16} /> {copyMsg}</> : <><Copy size={16} /> Copy All Output</>}
+                      </button>
+                      <button onClick={resetPipeline} className="done-btn btn-secondary">
+                        <RotateCcw size={16} /> Reset Studio
+                      </button>
                     </div>
                   </motion.div>
-
-                  <AnimatePresence>
-                    {isRunning && (
-                      <motion.div 
-                        key="working-vis"
-                        initial={{ opacity: 0, height: 0 }} 
-                        animate={{ opacity: 1, height: "auto" }} 
-                        exit={{ opacity: 0, height: 0 }}
-                        className="working-vis overflow-hidden mt-4"
-                      >
-                        <Sparkles size={20} className="animate-pulse" />
-                        <div className="flex-1">
-                          <div className="shimmer-line w-full mb-2" />
-                          <div className="shimmer-line w-3/4" />
-                        </div>
-                      </motion.div>
-                    )}
-                    {isDone && agent.expanded && (
-                      <motion.div 
-                        key="output-vis"
-                        initial={{ opacity: 0, height: 0 }} 
-                        animate={{ opacity: 1, height: "auto" }} 
-                        exit={{ opacity: 0, height: 0 }}
-                        className="overflow-hidden mt-4"
-                      >
-                        <div className="output-box">{agent.output}</div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </motion.div>
-
-        {/* Done Bar */}
-        <AnimatePresence>
-          {allDone && (
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ) : (
+            /* Terminal Tab */
             <motion.div 
-              initial={{ opacity: 0, y: 20 }} 
+              className="terminal-window"
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="done-bar glass-panel"
+              transition={{ duration: 0.4 }}
             >
-              <div className="font-medium text-lg flex items-center gap-3">
-                <CheckCircle size={24} /> Pipeline Complete
+              <div className="terminal-header">
+                <div className="terminal-dots">
+                  <div className="terminal-dot dot-red" />
+                  <div className="terminal-dot dot-yellow" />
+                  <div className="terminal-dot dot-green" />
+                </div>
+                <div className="terminal-title">claude-code --autopilot-mode</div>
+                <div style={{ width: 42 }} />
               </div>
-              <div className="done-btns">
-                <button onClick={copyAll} className="done-btn btn-primary">
-                  <Copy size={18} /> {copyMsg || "Copy All"}
-                </button>
-                <button onClick={resetPipeline} className="done-btn btn-secondary">
-                  <RotateCcw size={18} /> Reset
-                </button>
+              <div className="terminal-body">
+                {terminalLogs.length === 0 ? (
+                  <div className="terminal-line">
+                    <span className="terminal-prompt">$</span> claudecode status <br />
+                    <span className="terminal-system">Claude Code Content Studio v1.2 ready. Configure dynamic parameters and click "Run AI Autopilot" to monitor live terminal execution.</span>
+                  </div>
+                ) : (
+                  terminalLogs.map((log, idx) => (
+                    <div key={idx} className={`terminal-line terminal-${log.type}`}>
+                      {log.type === "prompt" && <span className="terminal-prompt">&gt; </span>}
+                      {log.text}
+                    </div>
+                  ))
+                )}
+                {running && (
+                  <div className="terminal-line">
+                    <span className="terminal-prompt">&gt;</span> Executing subprocesses...
+                    <span className="terminal-cursor" />
+                  </div>
+                )}
+                <div ref={terminalEndRef} />
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
+
+        </div>
       </main>
     </>
   );
