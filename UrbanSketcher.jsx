@@ -26,8 +26,8 @@ ${FONTS}
   --text-main: #f3f4f6;
   --text-muted: #9ca3af;
   --border-color: rgba(99, 102, 241, 0.15);
-  --glass-bg: rgba(15, 19, 34, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.04);
+  --glass-bg: rgba(15, 19, 34, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.05);
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
@@ -37,13 +37,28 @@ ${FONTS}
 body {
   font-family: 'Outfit', sans-serif;
   background-color: var(--bg-primary);
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.12) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, rgba(168, 85, 247, 0.04) 0px, transparent 70%);
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* Aurora Background */
+.aurora-bg {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: -1; overflow: hidden; background: var(--bg-primary);
+  pointer-events: none;
+}
+.aurora-orb {
+  position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.5;
+  animation: float 20s infinite ease-in-out alternate;
+}
+.orb-1 { width: 600px; height: 600px; background: rgba(99, 102, 241, 0.15); top: -200px; left: -100px; animation-delay: 0s; }
+.orb-2 { width: 500px; height: 500px; background: rgba(244, 63, 94, 0.12); bottom: -100px; right: -50px; animation-delay: -5s; }
+.orb-3 { width: 700px; height: 700px; background: rgba(168, 85, 247, 0.08); top: 30%; left: 40%; animation-delay: -10s; }
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(50px, 30px) scale(1.1); }
+  100% { transform: translate(-30px, -50px) scale(0.9); }
 }
 
 /* Scrollbar */
@@ -92,24 +107,32 @@ body {
   position: sticky; top: 0; z-index: 50;
   padding: 16px 40px;
   display: flex; align-items: center; justify-content: space-between;
-  background: rgba(7, 9, 19, 0.85);
-  backdrop-filter: blur(16px);
+  background: rgba(7, 9, 19, 0.80);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.5);
 }
 .header-brand {
   display: flex; align-items: center; gap: 12px;
 }
 .header-logo-icon {
   color: var(--accent-primary);
-  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6));
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.8));
 }
 .header-title {
   font-family: 'Playfair Display', serif;
   font-size: 1.6rem; font-weight: 700;
-  background: linear-gradient(to right, #ffffff, #a855f7, #f43f5e);
+  /* Shimmering text effect */
+  background: linear-gradient(90deg, #ffffff 0%, #a855f7 25%, #f43f5e 50%, #a855f7 75%, #ffffff 100%);
+  background-size: 200% auto;
+  color: transparent;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-bg 6s linear infinite;
+}
+@keyframes shimmer-bg {
+  to { background-position: 200% center; }
 }
 .header-meta {
   display: flex; align-items: center; gap: 20px;
@@ -120,6 +143,7 @@ body {
   padding: 6px 12px; border-radius: 99px;
   font-size: 0.8rem; font-weight: 500; color: #a5b4fc;
   display: flex; align-items: center; gap: 6px;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
 }
 .header-badge span {
   width: 8px; height: 8px; border-radius: 50%; background: #10b981;
@@ -142,15 +166,17 @@ body {
 /* Glass Panels */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  /* Premium inner light border + drop shadow */
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 12px 40px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
 .glass-panel:hover {
-  border-color: rgba(99, 102, 241, 0.25);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 15px 50px rgba(0, 0, 0, 0.4);
 }
 
 /* Section Title */
@@ -165,10 +191,22 @@ body {
 }
 
 /* Config Sidebar */
+.sidebar-container {
+  display: flex; flex-direction: column; gap: 24px;
+}
+@media (min-width: 1024px) {
+  .sidebar-container {
+    position: sticky; top: 100px; 
+    max-height: calc(100vh - 120px); 
+    overflow-y: auto;
+    -ms-overflow-style: none; scrollbar-width: none;
+  }
+  .sidebar-container::-webkit-scrollbar { display: none; }
+}
+
 .sidebar-panel {
   padding: 28px;
   display: flex; flex-direction: column; gap: 20px;
-  height: fit-content;
 }
 .input-field {
   display: flex; flex-direction: column; gap: 8px;
@@ -177,21 +215,70 @@ body {
   font-weight: 500; font-size: 0.9rem; color: #a5b4fc;
   display: flex; align-items: center; gap: 8px;
 }
-.input-field input, .input-field select {
+.input-field input {
   width: 100%; padding: 12px 16px; border-radius: 10px;
   border: 1px solid var(--border-color);
   background: rgba(15, 19, 34, 0.8);
   color: white;
   font-family: 'Outfit', sans-serif; font-size: 0.95rem;
   transition: all 0.2s ease;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.03);
 }
-.input-field input:focus, .input-field select:focus {
+.input-field input:focus {
   outline: none; border-color: var(--accent-secondary);
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.03), 0 0 0 3px rgba(168, 85, 247, 0.15);
   background: rgba(21, 27, 48, 0.9);
 }
 .input-field input::placeholder {
   color: #4b5563;
+}
+
+/* Custom Select Dropdown */
+.custom-select-container {
+  position: relative; width: 100%;
+}
+.custom-select-button {
+  width: 100%; padding: 12px 16px; border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: rgba(15, 19, 34, 0.8);
+  color: white; font-family: 'Outfit', sans-serif; font-size: 0.95rem;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; transition: all 0.2s ease;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.03);
+}
+.custom-select-button:hover:not(:disabled) {
+  background: rgba(21, 27, 48, 0.95);
+  border-color: rgba(168, 85, 247, 0.4);
+}
+.custom-select-button:focus {
+  outline: none; border-color: var(--accent-secondary);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.03), 0 0 0 3px rgba(168, 85, 247, 0.15);
+}
+.custom-select-button:disabled {
+  opacity: 0.5; cursor: not-allowed;
+}
+.custom-select-dropdown {
+  position: absolute; top: calc(100% + 8px); left: 0; width: 100%;
+  background: rgba(15, 19, 34, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 12px; padding: 8px; z-index: 100;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 10px 40px rgba(0,0,0,0.5);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.custom-select-option {
+  width: 100%; padding: 10px 12px; border-radius: 8px;
+  background: transparent; border: none; color: #d1d5db;
+  font-family: 'Outfit', sans-serif; font-size: 0.9rem;
+  text-align: left; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  transition: all 0.2s;
+}
+.custom-select-option:hover {
+  background: rgba(99, 102, 241, 0.15); color: white;
+}
+.custom-select-option.selected {
+  background: rgba(99, 102, 241, 0.25); color: white; font-weight: 500;
 }
 
 .run-btn {
@@ -203,11 +290,20 @@ body {
   display: flex; align-items: center; justify-content: center; gap: 10px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+  position: relative; overflow: hidden;
+}
+.run-btn::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: all 0.5s ease;
 }
 .run-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
   filter: brightness(1.15);
+}
+.run-btn:hover:not(:disabled)::before {
+  left: 100%;
 }
 .run-btn:disabled {
   opacity: 0.5; cursor: not-allowed;
@@ -227,6 +323,7 @@ body {
   font-size: 0.95rem; font-weight: 500; cursor: pointer;
   display: flex; align-items: center; gap: 8px;
   transition: all 0.2s;
+  position: relative;
 }
 .tab-btn:hover {
   color: white; background: rgba(255,255,255,0.03);
@@ -317,7 +414,7 @@ body {
   flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;
 }
 .gate-bar-fill {
-  height: 100%; border-radius: 4px; transition: width 1s ease-out;
+  height: 100%; border-radius: 4px; transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .gate-val {
   width: 40px; text-align: right; font-size: 0.8rem; font-weight: 600; color: white;
@@ -348,7 +445,7 @@ body {
   box-shadow: inset 0 0 25px rgba(0,0,0,0.8), 0 12px 40px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
-  height: 520px;
+  height: 600px;
 }
 .terminal-header {
   display: flex;
@@ -433,7 +530,7 @@ body {
 
 /* Hook Sandbox Evaluator */
 .hook-sandbox {
-  padding: 24px; margin-top: 32px;
+  padding: 24px;
   border: 1px solid rgba(244, 63, 94, 0.2);
   background: radial-gradient(circle at 100% 0%, rgba(244, 63, 94, 0.04) 0%, transparent 60%);
 }
@@ -509,6 +606,84 @@ body {
 }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 `;
+
+/* ─── CUSTOM SELECT COMPONENT ─────────────────────────────────────────── */
+const CustomSelect = ({ value, onChange, options, disabled, icon: Icon }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(o => o.value === value) || options[0];
+
+  return (
+    <div className="custom-select-container" ref={dropdownRef}>
+      <button 
+        type="button"
+        className={`custom-select-button ${disabled ? 'disabled' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        disabled={disabled}
+      >
+        <span className="flex items-center gap-2">
+          {Icon && <Icon size={16} className="text-indigo-400" />}
+          {selectedOption.label}
+        </span>
+        <ChevronDown size={16} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="custom-select-dropdown"
+          >
+            {options.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                className={`custom-select-option ${value === opt.value ? 'selected' : ''}`}
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+              >
+                {opt.label}
+                {value === opt.value && <Check size={14} className="text-indigo-400" />}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const VOICE_OPTIONS = [
+  { value: "Meditative & Aesthetic", label: "Meditative & Aesthetic" },
+  { value: "Educational & Technical", label: "Educational & Technical" },
+  { value: "Aspirational & Inspiring", label: "Aspirational & Inspiring" },
+  { value: "Fast-paced & High Energy", label: "Fast-paced & High Energy" },
+  { value: "Mistakes-to-Avoid", label: "Mistakes to Avoid / Analytical" }
+];
+
+const PLATFORM_OPTIONS = [
+  { value: "Instagram Reel", label: "Instagram Reel" },
+  { value: "YouTube Shorts", label: "YouTube Shorts" },
+  { value: "YouTube Long-form", label: "YouTube Long-form (Beat sheets)" },
+  { value: "X/Twitter Thread", label: "X/Twitter Thread (Draft copy)" },
+  { value: "LinkedIn Post", label: "LinkedIn Post (Technical summary)" }
+];
 
 /* ─── PROMPTS BUILDER ─────────────────────────────────────────────────── */
 const buildPrompt = (agentId, niche, handle, competitors, location, voice, contentType, outputs) => {
@@ -770,10 +945,10 @@ export default function UrbanSketcher() {
   // Parses Logic Gates Scorecard from Agent 2 validator
   const parseScorecard = (text) => {
     try {
-      const hookMatch = text.match(/\[HOOK_STRENGTH\]:\s*(\d+)%/i);
-      const retMatch = text.match(/\[RETENTION_INDEX\]:\s*(\d+)%/i);
-      const easeMatch = text.match(/\[PRODUCTION_EASE\]:\s*(\d+)%/i);
-      const engMatch = text.match(/\[ENGAGEMENT_POTENTIAL\]:\s*(\d+)%/i);
+      const hookMatch = text.match(/\[HOOK_STRENGTH\]:\\s*(\\d+)%/i);
+      const retMatch = text.match(/\[RETENTION_INDEX\]:\\s*(\\d+)%/i);
+      const easeMatch = text.match(/\[PRODUCTION_EASE\]:\\s*(\\d+)%/i);
+      const engMatch = text.match(/\[ENGAGEMENT_POTENTIAL\]:\\s*(\\d+)%/i);
 
       const hookVal = hookMatch ? parseInt(hookMatch[1]) : 85;
       const retVal = retMatch ? parseInt(retMatch[1]) : 80;
@@ -919,7 +1094,7 @@ export default function UrbanSketcher() {
     if (!hookTest.trim()) return;
 
     const trimmed = hookTest.trim().toLowerCase();
-    const words = trimmed.split(/\s+/);
+    const words = trimmed.split(/\\s+/);
     
     let score = 60; // Starting baseline
     const rules = [];
@@ -1002,7 +1177,7 @@ export default function UrbanSketcher() {
     }
 
     // Rule 4: Curiosity Gap (contains number or metrics)
-    const containsNumber = /\d+/.test(trimmed);
+    const containsNumber = /\\d+/.test(trimmed);
     if (containsNumber) {
       score += 10;
       rules.push({
@@ -1058,10 +1233,17 @@ export default function UrbanSketcher() {
     <>
       <style>{CSS}</style>
 
+      {/* Aurora Animated Background */}
+      <div className="aurora-bg">
+        <div className="aurora-orb orb-1"></div>
+        <div className="aurora-orb orb-2"></div>
+        <div className="aurora-orb orb-3"></div>
+      </div>
+
       {/* Header */}
       <header className="header">
         <div className="header-brand">
-          <Cpu className="header-logo-icon" size={24} />
+          <Cpu className="header-logo-icon" size={28} />
           <span className="header-title">Claude Content Studio</span>
         </div>
         <div className="header-meta">
@@ -1074,12 +1256,12 @@ export default function UrbanSketcher() {
       <main className="main-container">
         
         {/* Left Column: Control Hub */}
-        <div className="flex flex-col gap-4">
+        <div className="sidebar-container">
           <motion.div 
             className="sidebar-panel glass-panel"
             initial={{ opacity: 0, x: -30 }} 
             animate={{ opacity: 1, x: 0 }} 
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           >
             <h2 className="section-title">
               <Sliders size={20} color="var(--accent-secondary)" /> Control Hub
@@ -1127,24 +1309,24 @@ export default function UrbanSketcher() {
 
             <div className="input-field">
               <label><Info size={16} /> Voice Tone Profile</label>
-              <select value={voiceTone} onChange={(e) => setVoiceTone(e.target.value)} disabled={running}>
-                <option value="Meditative & Aesthetic">Meditative & Aesthetic</option>
-                <option value="Educational & Technical">Educational & Technical</option>
-                <option value="Aspirational & Inspiring">Aspirational & Inspiring</option>
-                <option value="Fast-paced & High Energy">Fast-paced & High Energy</option>
-                <option value="Mistakes-to-Avoid">Mistakes to Avoid / Analytical</option>
-              </select>
+              <CustomSelect 
+                options={VOICE_OPTIONS}
+                value={voiceTone}
+                onChange={setVoiceTone}
+                disabled={running}
+                icon={MessageSquare}
+              />
             </div>
 
             <div className="input-field">
               <label><Film size={16} /> Platform Format Style</label>
-              <select value={contentType} onChange={(e) => setContentType(e.target.value)} disabled={running}>
-                <option value="Instagram Reel">Instagram Reel</option>
-                <option value="YouTube Shorts">YouTube Shorts</option>
-                <option value="YouTube Long-form">YouTube Long-form (Beat sheets)</option>
-                <option value="X/Twitter Thread">X/Twitter Thread (Draft copy)</option>
-                <option value="LinkedIn Post">LinkedIn Post (Technical summary)</option>
-              </select>
+              <CustomSelect 
+                options={PLATFORM_OPTIONS}
+                value={contentType}
+                onChange={setContentType}
+                disabled={running}
+                icon={Video}
+              />
             </div>
 
             <button onClick={runPipeline} disabled={running || !niche.trim()} className="run-btn mt-2">
@@ -1161,7 +1343,7 @@ export default function UrbanSketcher() {
             className="sidebar-panel glass-panel hook-sandbox"
             initial={{ opacity: 0, y: 30 }} 
             animate={{ opacity: 1, y: 0 }} 
-            transition={{ delay: 0.2, duration: 0.5 }}
+            transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
           >
             <div className="hook-sandbox-header">
               <ShieldCheck size={22} color="#f43f5e" style={{ filter: 'drop-shadow(0 0 4px rgba(244,63,94,0.4))' }} />
@@ -1236,7 +1418,7 @@ export default function UrbanSketcher() {
             >
               <div className="pipeline-container">
                 <AnimatePresence>
-                  {agents.map((agent) => {
+                  {agents.map((agent, index) => {
                     const Icon = agent.icon;
                     const isRunning = agent.status === "running";
                     const isDone = agent.status === "done";
@@ -1246,6 +1428,9 @@ export default function UrbanSketcher() {
                       <motion.div 
                         key={agent.id} 
                         layout
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.4 }}
                         className="agent-card glass-panel"
                         style={{
                           borderColor: isRunning ? 'var(--warning)' : isDone ? 'var(--accent-primary)' : 'var(--glass-border)',
@@ -1256,7 +1441,8 @@ export default function UrbanSketcher() {
                             <div className="agent-icon-wrap" style={{ 
                               background: isRunning ? 'rgba(245,158,11,0.1)' : isDone ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.02)',
                               color: isRunning ? 'var(--warning)' : isDone ? 'var(--accent-primary)' : 'var(--text-muted)',
-                              border: isRunning ? '1px solid rgba(245,158,11,0.3)' : isDone ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent'
+                              border: isRunning ? '1px solid rgba(245,158,11,0.3)' : isDone ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
+                              boxShadow: isRunning ? '0 0 15px rgba(245,158,11,0.2)' : isDone ? '0 0 15px rgba(99,102,241,0.2)' : 'none'
                             }}>
                               <Icon size={20} />
                             </div>
@@ -1286,7 +1472,12 @@ export default function UrbanSketcher() {
 
                         {/* Interactive Logic Gates scorecard inside Agent 2 card */}
                         {agent.id === 2 && isDone && agent.scorecard && (
-                          <div className="logic-gates-scorecard">
+                          <motion.div 
+                            className="logic-gates-scorecard"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5 }}
+                          >
                             <div className="flex justify-between items-center">
                               <span className="font-semibold text-sm text-indigo-200">Logic Gates Validation Audit</span>
                               <div className="flex items-center gap-2">
@@ -1338,7 +1529,7 @@ export default function UrbanSketcher() {
                                 {agent.scorecard.engagementScore >= 75 ? "PASS" : "FAIL"}
                               </span>
                             </div>
-                          </div>
+                          </motion.div>
                         )}
 
                         <AnimatePresence>
