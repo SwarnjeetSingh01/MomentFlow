@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Search, BrainCircuit, PenTool, MessageSquare, 
+  Search, BrainCircuit, PenTool, MessageSquare, Video,
   CheckCircle, Copy, RotateCcw, Play, MapPin, 
   ChevronDown, ChevronUp, Sparkles, Loader2, Info, AlertCircle
 } from "lucide-react";
@@ -44,7 +44,7 @@ body {
 .ml-4 { margin-left: 16px; }
 .mt-4 { margin-top: 16px; }
 .w-full { width: 100%; }
-.w-3\\/4 { width: 75%; }
+.w-3/4 { width: 75%; }
 .text-sm { font-size: 0.875rem; }
 .text-lg { font-size: 1.125rem; }
 .font-medium { font-weight: 500; }
@@ -249,7 +249,7 @@ GAP: Only event documentation posted — zero tutorials/tips/process reels.
 GOAL: Break follower bubble, grow non-follower reach. City: Nagpur, India.
 `;
 
-const buildPrompt = (agentId, niche, location, prevOutput) => {
+const buildPrompt = (agentId, niche, location, outputs) => {
   const loc = location ? location.trim() : "";
   const locNote = loc
     ? `The sketching location is: "${loc}". All agents must weave this location into their output as instructed below.`
@@ -274,25 +274,16 @@ Produce a Markdown table:
 
 Hook Style: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | ASPIRATIONAL | NUMBER/LIST
 Format: Reel | YouTube Short | YouTube Long-form | Tutorial | Time-lapse | POV | Carousel
-List YouTube first, then Instagram, ordered by engagement rate descending.
 
 CONTENT GAP ALERT:
 Name ONE angle audiences want but very few creators are doing well.
 
 NON-FOLLOWER REACH ANALYSIS:
-Name the #1 format pulling non-follower reach in this niche and why.
-
-VIRAL PICKS (top 3 to adapt for @usknagpur):
-1. [pattern] — [why it works for a Nagpur community account]
-2. [pattern] — [why it works for a Nagpur community account]
-3. [pattern] — [why it works for a Nagpur community account]`;
+Name the #1 format pulling non-follower reach in this niche and why.`;
   }
 
   if (agentId === 2) {
-    const locSection = loc
-      ? `\n\nLOCATION OPPORTUNITY — "${loc}":\nIn 4–5 sentences, describe exactly how @usknagpur could execute the RECOMMENDED TOPIC at "${loc}". Reference its specific visual qualities (light direction, architectural details, textures, crowds), the best time of day to shoot, and one logistical tip. Make it actionable, not generic.`
-      : "";
-
+    const prevOutput = outputs[0] || "";
     return `You are Agent 02 — Validation Engine. You analyze content data and produce a prioritized strategy brief for @usknagpur.
 
 ${CREATOR_CONTEXT}
@@ -301,47 +292,24 @@ ${locNote}
 RESEARCH DATA FROM AGENT 01:
 ${prevOutput}
 
-─────────────────────────────────────────────
 SECTION 1 — SCORING
-Score each post in the research data using this formula:
-  Score = (Reach Score × 30%) + (Engagement Rate Score × 40%) + (Save/Intent Signal × 30%)
-
-  Scoring scales:
-  - Reach Score: rank posts by view count, assign 10 (highest) down to 1 (lowest) within the dataset
-  - Engagement Rate Score: High = 9–10, Medium = 5–8, Low = 1–4
-  - Save/Intent Signal: 10 if tutorials/tips/how-to (high save intent), 6 if event/community, 3 if general vlog
-
-If any Agent 01 data appears fabricated or inconsistent with real platform norms, flag it and apply a 50% weight penalty to that row.
+Score each post in the research data (Reach, Engagement, Save/Intent).
 
 SECTION 2 — TOPIC CLUSTERS
-Group posts into 4–6 clusters. Name each cluster using this format:
-  [TECHNIQUE or TOPIC] + [AUDIENCE EMOTION or OUTCOME]
-  Examples: "Ink Wash + Meditative Flow", "Architecture + Local Pride", "Quick Sketch + Beginner Win"
+Group posts into 4–6 clusters. Name each cluster: [TECHNIQUE or TOPIC] + [AUDIENCE EMOTION or OUTCOME].
 
-Produce a ranking table:
-| Rank | Topic Cluster | Avg Score | Post Count | Top Format | Non-Follower Reach Potential |
-
-Non-Follower Reach Potential: rate High / Medium / Low based on searchability and shareability of the cluster topic.
-
-SECTION 3 — TOP 3 FORMATS
-Name the top 3 formats working right now in this niche with:
-- Format name
-- Why the algorithm is distributing it
-- Specific execution note for @usknagpur (a community account with group events and 3,800 followers)
-
-SECTION 4 — RECOMMENDED TOPIC
-RECOMMENDED TOPIC: [cluster name]
-Content Angle: [the specific creative angle — not just the topic, but HOW to approach it]
-Optimal Format & Length: [e.g. "60-sec Reel with time-lapse B-roll"]
-Why Now: [1 sentence on timing — why this week, this trend]
-Estimated Reach: [range, split between follower and non-follower]
-Hashtag Strategy: [3 categories of hashtags to use — e.g. "niche community tags + city tags + trending art tags"]
-Content Gap Opportunity: [from Agent 01's gap alert — can @usknagpur own this angle?]${locSection}`;
+SECTION 3 — RECOMMENDED TOPIC
+Based on the clusters, select the #1 RECOMMENDED TOPIC for the creator to execute next. Provide:
+- Topic Name
+- Content Angle
+- Why Now
+- Estimated Reach Potential`;
   }
 
   if (agentId === 3) {
+    const prevOutput = outputs[1] || "";
     const locGround = loc
-      ? `LOCATION GROUNDING: The script must be set at "${loc}". Reference at least 2 specific sensory details (e.g. the sound of water, the colour of the stone, the quality of morning light, the smell of the air, the texture of the pavement). Make it feel like the viewer is there.`
+      ? `LOCATION GROUNDING: Ensure at least one concept heavily features "${loc}" and specific sensory details from that place.`
       : "";
 
     return `You are Agent 03 — Script Writer for @usknagpur (Urban Sketchers Nagpur).
@@ -352,50 +320,26 @@ ${locNote}
 VALIDATION DATA FROM AGENT 02:
 ${prevOutput}
 
-TASK: Write a 60-second reel script for the RECOMMENDED TOPIC from the validation data above.
-
-VOICE DIRECTION:
-Write as if you're showing your sketchbook to a close friend over chai. Conversational but thoughtful.
-Tone reference: Austin Kleon meets a Studio Ghibli narrator — curious, warm, unhurried, never salesy.
-Use "you" and "we" freely. No "Hey guys!" openers. No listicle energy. No hard sells.
-First person throughout. Every line should feel like it could be spoken, not read.
+TASK: Generate 3 DISTINCT, premium short-form script concepts based on the RECOMMENDED TOPIC.
+To save tokens and be actionable, use the highly condensed "Beat Sheet" format. 
 
 ${locGround}
 
-─────────────────────────────────────────────
-SCRIPT STRUCTURE — use exactly these 4 labeled beats:
+For EACH of the 3 scripts, output exactly this format:
+### Script [1/2/3]: [Catchy Title]
+- **Vibe:** [e.g. Fast-paced, Meditative, Educational]
+- **Beat 1 (Value Open - 0-3s):** [Visual action] | Audio: [Core hook idea]
+- **Beat 2 (The Technique - 3-15s):** [Visual action] | Audio: [Core insight/tip]
+- **Beat 3 (The Payoff - 15-25s):** [Visual reveal] | Audio: [Emotional shift]
+- **CTA (25-30s):** [Visual text] | Audio: [Save/Comment prompt]
 
-[BEAT 1: THE VALUE OPEN] — 10 seconds
-Open with a relatable observation or a quiet promise. No hook (Agent 04 handles that).
-[VISUAL]: Describe what the camera shows — be specific and filmable.
-[EMPHASIS]: Mark one word or phrase the speaker should stress.
-
-[BEAT 2: THE TECHNIQUE] — 20 seconds
-Share the core insight, tip, or process. Be specific and visual — name tools, name colours, describe the hand movement.
-[VISUAL]: Describe B-roll or what's happening on screen (close-up of paper, ink bleeding, pen nib, etc.).
-[PAUSE]: Mark one natural pause beat for the speaker.
-
-[BEAT 3: THE TRANSFORMATION] — 20 seconds
-Reveal the result, the before/after, or the emotional shift. Make the viewer feel the payoff.
-[VISUAL]: Describe the reveal shot or comparison.
-[SLOW DOWN]: Mark the moment where delivery should drop in pace for impact.
-
-[CTA] — 10 seconds
-Write TWO CTA options — pick the stronger one and mark it RECOMMENDED:
-  Option A (Save-optimised): Ask them to save the reel for later reference.
-  Option B (Comment-optimised): Ask one specific question with a one-word or emoji answer (drives comment velocity for the algorithm).
-[VISUAL]: End frame description.
-
-─────────────────────────────────────────────
-PRODUCTION NOTES (add at end):
-- Suggested background music mood: [1 descriptor]
-- Best time to post for Nagpur audience: [day + time window]
-- One prop or tool to make the sketch process more visually interesting on camera`;
+Keep descriptions to 1 sentence per beat. Focus on premium quality, not fluff. Provide 3 completely different angles (e.g. one tutorial, one aesthetic vlog, one mistake-to-avoid).`;
   }
 
   if (agentId === 4) {
+    const scriptsOutput = outputs[2] || "";
     const locHooks = loc
-      ? `LOCATION RULE: At least 2 of your 5 hooks MUST reference "${loc}" by name OR use a specific sensory detail tied to that place. Generic location references ("a beautiful lakeside") are not acceptable — be specific.`
+      ? `LOCATION RULE: At least 1 hook per script MUST reference "${loc}" by name OR use a specific sensory detail tied to that place.`
       : "";
 
     return `You are Agent 04 — Hook Generator for @usknagpur (Urban Sketchers Nagpur).
@@ -403,53 +347,54 @@ PRODUCTION NOTES (add at end):
 ${CREATOR_CONTEXT}
 ${locNote}
 
-SCRIPT FROM AGENT 03:
-${prevOutput}
+SCRIPTS FROM AGENT 03:
+${scriptsOutput}
 
 ${locHooks}
 
-TASK: Generate exactly 5 scroll-stopping hooks for this reel. These hooks replace the opening 3 seconds.
-Hooks must stop a cold audience — someone who has never heard of @usknagpur — from scrolling past.
+TASK: For EACH of the 3 scripts provided, generate exactly 2 scroll-stopping hooks.
+CRITICAL RULE: The FIRST 3 WORDS of every hook are the most important. They must create immediate tension, curiosity, or recognition. Do NOT start with "I", "Are you", "Do you", "Hey".
 
-CRITICAL RULE: The FIRST 3 WORDS of every hook are the most important. They must create immediate tension, curiosity, or recognition.
-Do NOT start any hook with: "I", "Are you", "Do you", "Have you", "Hey", "This is".
+OUTPUT FORMAT:
+### Hooks for Script 1
+1. **[Pattern Name]:** "[Full hook text - max 15 words]"
+2. **[Pattern Name]:** "[Full hook text - max 15 words]"
 
-HOOK TYPE DEFINITIONS (follow these exactly):
-1. ASPIRATIONAL — Paints a picture of who the viewer becomes. Pattern: identity shift.
-   Example structure: "[Surprising identity claim] + [the skill or place that creates it]"
-2. PAIN POINT — Names a specific frustration the @usknagpur audience already feels.
-   Pattern: name the failure before offering the fix. Be precise — not generic art frustration.
-3. EXCLUSIVITY — Makes the viewer feel they're getting insider or local knowledge.
-   Pattern: "What most people / outsiders / tourists don't know about [thing]"
-4. SPECIFIC RESULT — Leads with a concrete, measurable outcome. No vague promises.
-   Pattern: "[Number] + [specific skill/result] + [tight time frame]"
-5. CURIOSITY GAP — Creates an information tension the brain must resolve.
-   Pattern: "[I did X unexpected thing] and [surprising consequence]"
+### Hooks for Script 2
+1. **[Pattern Name]:** "[Full hook text - max 15 words]"
+2. **[Pattern Name]:** "[Full hook text - max 15 words]"
 
-OUTPUT FORMAT for each hook:
+### Hooks for Script 3
+1. **[Pattern Name]:** "[Full hook text - max 15 words]"
+2. **[Pattern Name]:** "[Full hook text - max 15 words]"`;
+  }
 
-Hook Type: [TYPE]
-First 3 Words: [word1] [word2] [word3]
-Hook: [full hook text — MAX 15 WORDS — must land in under 3 seconds when spoken]
-Pattern: [the specific copywriting pattern used]
-Why It Works: [1 sentence referencing a specific psychological mechanism: curiosity gap, identity signalling, loss aversion, social proof, FOMO, pattern interrupt]
-Confidence Score: [X/10]
+  if (agentId === 5) {
+    const scriptsOutput = outputs[2] || "";
+    
+    return `You are Agent 05 — Production Director for @usknagpur (Urban Sketchers Nagpur).
 
-CONFIDENCE RUBRIC:
-9–10: Proven hook pattern + directly matches top-scoring content cluster + specific to urban sketching niche
-7–8: Strong pattern, works for the niche but could apply to adjacent niches too
-5–6: Solid structure but needs the creator's unique delivery to land
-Below 5: Do not include — rewrite until it scores 5+
+${CREATOR_CONTEXT}
 
-─────────────────────────────────────────────
-RECOMMENDED HOOK: [type] — [hook text]
-Reason: [why this one wins — reference the validation data and the creator's specific situation]
+SCRIPTS FROM AGENT 03:
+${scriptsOutput}
 
-PLATFORM OPTIMISATION:
-Instagram Reels: [which hook performs best here and why — consider the scroll speed and audience intent on Instagram]
-YouTube Shorts: [which hook performs best here and why — consider that YouTube Shorts viewers have slightly longer attention spans]
+TASK: Provide a highly actionable, concise Recording Guide for the creator so they know exactly how to shoot these 3 scripts with their phone. Do NOT write fluff or long paragraphs. Use tight bullet points to save tokens.
 
-A/B TEST SUGGESTION: [recommend 2 hooks to split-test against each other and what metric to watch — saves, comments, or shares]`;
+OUTPUT FORMAT:
+### Master Shot List (Applicable to all 3 scripts)
+- [Shot Type 1]: [How to film it, e.g., "Over-the-shoulder macro using 2x zoom"]
+- [Shot Type 2]: [How to film it]
+- [Shot Type 3]: [How to film it]
+
+### Script-Specific Needs
+- **Script 1:** [Specific prop, lighting condition, or camera movement required]
+- **Script 2:** [Specific prop, lighting condition, or camera movement required]
+- **Script 3:** [Specific prop, lighting condition, or camera movement required]
+
+### Common Filming Mistakes to Avoid
+- [Mistake 1]
+- [Mistake 2]`;
   }
 
   return "";
@@ -458,23 +403,23 @@ A/B TEST SUGGESTION: [recommend 2 hooks to split-test against each other and wha
 /* ─── AGENT RUNNER ────────────────────────────────────────────────── */
 const AGENT_META = [
   { id: 1, name: "Content Scout",     desc: "Searching YouTube & Instagram trends", icon: Search },
-  { id: 2, name: "Validation Engine", desc: "Scoring & clustering content data",   icon: BrainCircuit },
-  { id: 3, name: "Script Writer",     desc: "Drafting your 60-second reel script",icon: PenTool },
-  { id: 4, name: "Hook Generator",    desc: "Generating 5 scroll-stopping hooks", icon: MessageSquare },
+  { id: 2, name: "Validation Engine", desc: "Scoring & clustering content data",    icon: BrainCircuit },
+  { id: 3, name: "Script Writer",     desc: "Drafting 3 distinct premium scripts",  icon: PenTool },
+  { id: 4, name: "Hook Generator",    desc: "Crafting viral hooks for each script", icon: MessageSquare },
+  { id: 5, name: "Production Dir.",   desc: "Generating actionable recording guide",icon: Video },
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const trimContext = (text, maxChars) =>
-  text.length <= maxChars ? text : "[...trimmed for token efficiency...]\n" + text.slice(-maxChars);
+  text.length <= maxChars ? text : "[...trimmed...]\n" + text.slice(-maxChars);
 
-async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
-  const ctx = agentId === 3 ? trimContext(prevOutput, 1800) : prevOutput;
-  const prompt = buildPrompt(agentId, niche, location, ctx);
+async function runAgent({ agentId, niche, location, outputs, onRetry }) {
+  const prompt = buildPrompt(agentId, niche, location, outputs);
 
   const body = {
     model: "claude-sonnet-4-20250514",
-    max_tokens: agentId === 1 ? 1800 : 1200,
+    max_tokens: 1500,
     messages: [{ role: "user", content: prompt }],
   };
 
@@ -490,15 +435,8 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
         body: JSON.stringify(body),
       });
 
-      if (res.status === 401 || res.status === 400) {
-        const data = await res.json();
-        throw new Error(data?.error?.message || `HTTP ${res.status}`);
-      }
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data?.error?.message || `HTTP ${res.status}`);
-      }
-
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      
       const data = await res.json();
       const text = (data.content || [])
         .filter((b) => b.type === "text")
@@ -509,7 +447,6 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
       return text;
     } catch (err) {
       if (attempt === 2) throw err;
-      if (err.message.includes("401") || err.message.includes("400")) throw err;
     }
   }
 }
@@ -537,12 +474,10 @@ export default function UrbanSketcher() {
     outputsRef.current = [];
     setAgents(AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false })));
 
-    let prevOutput = "";
-
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       const agentId = i + 1;
       if (i > 0) {
-        await sleep(25000);
+        await sleep(20000); // Wait 20s between calls to prevent rate limits
       }
       setAgent(agentId, { status: "running", retry: 0 });
 
@@ -551,17 +486,15 @@ export default function UrbanSketcher() {
           agentId,
           niche,
           location,
-          prevOutput,
+          outputs: outputsRef.current,
           onRetry: (n) => setAgent(agentId, { retry: n }),
         });
         outputsRef.current[i] = text;
-        prevOutput = text;
         setAgent(agentId, { status: "done", output: text, expanded: true });
       } catch (err) {
         const msg = err.message || "Unknown error";
         outputsRef.current[i] = "";
         setAgent(agentId, { status: "error", error: msg });
-        prevOutput = "";
       }
     }
 
@@ -575,25 +508,8 @@ export default function UrbanSketcher() {
       .filter(Boolean)
       .join("\n\n" + "─".repeat(60) + "\n\n");
 
-    const tryFallback = () => {
-      try {
-        const ta = document.createElement("textarea");
-        ta.value = all;
-        ta.style.position = "fixed"; ta.style.opacity = "0";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        setCopyMsg("✓ Copied!");
-      } catch {
-        setCopyMsg("⚠ Copy failed");
-      }
-    };
-
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(all).then(() => setCopyMsg("✓ Copied!")).catch(tryFallback);
-    } else {
-      tryFallback();
+      navigator.clipboard.writeText(all).then(() => setCopyMsg("✓ Copied!")).catch(() => setCopyMsg("⚠ Failed"));
     }
     setTimeout(() => setCopyMsg(""), 2500);
   };
@@ -638,7 +554,7 @@ export default function UrbanSketcher() {
           transition={{ duration: 0.6 }}
         >
           <h1>Design Your Creative Workflow</h1>
-          <p>Provide a topic and let our 4-agent AI system handle research, validation, scripting, and viral hooks automatically.</p>
+          <p>Provide a topic and let our 5-agent AI system handle research, validation, scripting, viral hooks, and production planning automatically.</p>
         </motion.section>
 
         {/* Input Form */}
