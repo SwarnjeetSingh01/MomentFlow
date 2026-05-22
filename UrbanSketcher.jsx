@@ -8,7 +8,7 @@ import {
   ChevronDown, ChevronUp, Sparkles, Loader2, Info, AlertCircle
 } from "lucide-react";
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');`;
+const FONTS = `@import url(https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap);`;
 
 const CSS = `
 ${FONTS}
