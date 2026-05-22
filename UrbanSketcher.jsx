@@ -243,29 +243,29 @@ body {
 
 /* ─── PROMPTS ─────────────────────────────────────────────────────── */
 // Creator profile context injected into every agent
-const CREATOR_CONTEXT = \`
+const CREATOR_CONTEXT = `
 ACCOUNT: @usknagpur — Urban Sketchers Nagpur | 3,825 followers | ~3,500 avg reel views
 GAP: Only event documentation posted — zero tutorials/tips/process reels.
 GOAL: Break follower bubble, grow non-follower reach. City: Nagpur, India.
-\`;
+`;
 
 const buildPrompt = (agentId, niche, location, prevOutput) => {
   const loc = location ? location.trim() : "";
   const locNote = loc
-    ? \`The sketching location is: "\${loc}". All agents must weave this location into their output as instructed below.\`
+    ? `The sketching location is: "${loc}". All agents must weave this location into their output as instructed below.`
     : "";
 
   if (agentId === 1) {
     const locSearch = loc
-      ? \`Run an additional search specifically for "\${niche}" + "\${loc}" to find local or regional content patterns.\`
+      ? `Run an additional search specifically for "${niche}" + "${loc}" to find local or regional content patterns.`
       : "";
 
-    return \`You are Agent 01 — Content Scout for @usknagpur (Urban Sketchers Nagpur).
-\${CREATOR_CONTEXT}
-\${locNote}
+    return `You are Agent 01 — Content Scout for @usknagpur (Urban Sketchers Nagpur).
+${CREATOR_CONTEXT}
+${locNote}
 
 Using your knowledge of social media content trends for art and urban sketching creators, identify the TOP 10 highest-performing content patterns on YouTube and Instagram for this niche.
-\${locSearch}
+${locSearch}
 
 Be specific and realistic. Reference real creator styles and formats you know work well.
 
@@ -285,21 +285,21 @@ Name the #1 format pulling non-follower reach in this niche and why.
 VIRAL PICKS (top 3 to adapt for @usknagpur):
 1. [pattern] — [why it works for a Nagpur community account]
 2. [pattern] — [why it works for a Nagpur community account]
-3. [pattern] — [why it works for a Nagpur community account]\`;
+3. [pattern] — [why it works for a Nagpur community account]`;
   }
 
   if (agentId === 2) {
     const locSection = loc
-      ? \`\n\nLOCATION OPPORTUNITY — "\${loc}":\nIn 4–5 sentences, describe exactly how @usknagpur could execute the RECOMMENDED TOPIC at "\${loc}". Reference its specific visual qualities (light direction, architectural details, textures, crowds), the best time of day to shoot, and one logistical tip. Make it actionable, not generic.\`
+      ? `\n\nLOCATION OPPORTUNITY — "${loc}":\nIn 4–5 sentences, describe exactly how @usknagpur could execute the RECOMMENDED TOPIC at "${loc}". Reference its specific visual qualities (light direction, architectural details, textures, crowds), the best time of day to shoot, and one logistical tip. Make it actionable, not generic.`
       : "";
 
-    return \`You are Agent 02 — Validation Engine. You analyze content data and produce a prioritized strategy brief for @usknagpur.
+    return `You are Agent 02 — Validation Engine. You analyze content data and produce a prioritized strategy brief for @usknagpur.
 
-\${CREATOR_CONTEXT}
-\${locNote}
+${CREATOR_CONTEXT}
+${locNote}
 
 RESEARCH DATA FROM AGENT 01:
-\${prevOutput}
+${prevOutput}
 
 ─────────────────────────────────────────────
 SECTION 1 — SCORING
@@ -336,21 +336,21 @@ Optimal Format & Length: [e.g. "60-sec Reel with time-lapse B-roll"]
 Why Now: [1 sentence on timing — why this week, this trend]
 Estimated Reach: [range, split between follower and non-follower]
 Hashtag Strategy: [3 categories of hashtags to use — e.g. "niche community tags + city tags + trending art tags"]
-Content Gap Opportunity: [from Agent 01's gap alert — can @usknagpur own this angle?]\${locSection}\`;
+Content Gap Opportunity: [from Agent 01's gap alert — can @usknagpur own this angle?]${locSection}`;
   }
 
   if (agentId === 3) {
     const locGround = loc
-      ? \`LOCATION GROUNDING: The script must be set at "\${loc}". Reference at least 2 specific sensory details (e.g. the sound of water, the colour of the stone, the quality of morning light, the smell of the air, the texture of the pavement). Make it feel like the viewer is there.\`
+      ? `LOCATION GROUNDING: The script must be set at "${loc}". Reference at least 2 specific sensory details (e.g. the sound of water, the colour of the stone, the quality of morning light, the smell of the air, the texture of the pavement). Make it feel like the viewer is there.`
       : "";
 
-    return \`You are Agent 03 — Script Writer for @usknagpur (Urban Sketchers Nagpur).
+    return `You are Agent 03 — Script Writer for @usknagpur (Urban Sketchers Nagpur).
 
-\${CREATOR_CONTEXT}
-\${locNote}
+${CREATOR_CONTEXT}
+${locNote}
 
 VALIDATION DATA FROM AGENT 02:
-\${prevOutput}
+${prevOutput}
 
 TASK: Write a 60-second reel script for the RECOMMENDED TOPIC from the validation data above.
 
@@ -360,7 +360,7 @@ Tone reference: Austin Kleon meets a Studio Ghibli narrator — curious, warm, u
 Use "you" and "we" freely. No "Hey guys!" openers. No listicle energy. No hard sells.
 First person throughout. Every line should feel like it could be spoken, not read.
 
-\${locGround}
+${locGround}
 
 ─────────────────────────────────────────────
 SCRIPT STRUCTURE — use exactly these 4 labeled beats:
@@ -390,23 +390,23 @@ Write TWO CTA options — pick the stronger one and mark it RECOMMENDED:
 PRODUCTION NOTES (add at end):
 - Suggested background music mood: [1 descriptor]
 - Best time to post for Nagpur audience: [day + time window]
-- One prop or tool to make the sketch process more visually interesting on camera\`;
+- One prop or tool to make the sketch process more visually interesting on camera`;
   }
 
   if (agentId === 4) {
     const locHooks = loc
-      ? \`LOCATION RULE: At least 2 of your 5 hooks MUST reference "\${loc}" by name OR use a specific sensory detail tied to that place. Generic location references ("a beautiful lakeside") are not acceptable — be specific.\`
+      ? `LOCATION RULE: At least 2 of your 5 hooks MUST reference "${loc}" by name OR use a specific sensory detail tied to that place. Generic location references ("a beautiful lakeside") are not acceptable — be specific.`
       : "";
 
-    return \`You are Agent 04 — Hook Generator for @usknagpur (Urban Sketchers Nagpur).
+    return `You are Agent 04 — Hook Generator for @usknagpur (Urban Sketchers Nagpur).
 
-\${CREATOR_CONTEXT}
-\${locNote}
+${CREATOR_CONTEXT}
+${locNote}
 
 SCRIPT FROM AGENT 03:
-\${prevOutput}
+${prevOutput}
 
-\${locHooks}
+${locHooks}
 
 TASK: Generate exactly 5 scroll-stopping hooks for this reel. These hooks replace the opening 3 seconds.
 Hooks must stop a cold audience — someone who has never heard of @usknagpur — from scrolling past.
@@ -449,7 +449,7 @@ PLATFORM OPTIMISATION:
 Instagram Reels: [which hook performs best here and why — consider the scroll speed and audience intent on Instagram]
 YouTube Shorts: [which hook performs best here and why — consider that YouTube Shorts viewers have slightly longer attention spans]
 
-A/B TEST SUGGESTION: [recommend 2 hooks to split-test against each other and what metric to watch — saves, comments, or shares]\`;
+A/B TEST SUGGESTION: [recommend 2 hooks to split-test against each other and what metric to watch — saves, comments, or shares]`;
   }
 
   return "";
@@ -466,7 +466,7 @@ const AGENT_META = [
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const trimContext = (text, maxChars) =>
-  text.length <= maxChars ? text : "[...trimmed for token efficiency...]\\n" + text.slice(-maxChars);
+  text.length <= maxChars ? text : "[...trimmed for token efficiency...]\n" + text.slice(-maxChars);
 
 async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
   const ctx = agentId === 3 ? trimContext(prevOutput, 1800) : prevOutput;
@@ -492,18 +492,18 @@ async function runAgent({ agentId, niche, location, prevOutput, onRetry }) {
 
       if (res.status === 401 || res.status === 400) {
         const data = await res.json();
-        throw new Error(data?.error?.message || \`HTTP \${res.status}\`);
+        throw new Error(data?.error?.message || `HTTP ${res.status}`);
       }
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data?.error?.message || \`HTTP \${res.status}\`);
+        throw new Error(data?.error?.message || `HTTP ${res.status}`);
       }
 
       const data = await res.json();
       const text = (data.content || [])
         .filter((b) => b.type === "text")
         .map((b) => b.text)
-        .join("\\n\\n");
+        .join("\n\n");
 
       if (!text) throw new Error("No content in response");
       return text;
@@ -571,9 +571,9 @@ export default function UrbanSketcher() {
 
   const copyAll = () => {
     const all = outputsRef.current
-      .map((o, i) => o ? \`=== AGENT \${i + 1}: \${AGENT_META[i].name} ===\\n\\n\${o}\` : "")
+      .map((o, i) => o ? `=== AGENT ${i + 1}: ${AGENT_META[i].name} ===\n\n${o}` : "")
       .filter(Boolean)
-      .join("\\n\\n" + "─".repeat(60) + "\\n\\n");
+      .join("\n\n" + "─".repeat(60) + "\n\n");
 
     const tryFallback = () => {
       try {
@@ -703,7 +703,7 @@ export default function UrbanSketcher() {
                   key={agent.id} 
                   variants={itemVariants}
                   layout
-                  className={\`agent-card glass-panel \${isRunning ? "shadow-lg" : ""}\`}
+                  className={`agent-card glass-panel ${isRunning ? "shadow-lg" : ""}`}
                   style={{
                     borderColor: isRunning ? 'var(--accent-secondary)' : isDone ? 'var(--accent-primary)' : 'var(--border-color)',
                   }}
