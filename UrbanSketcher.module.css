@@ -90,7 +90,7 @@
 /* ═══════════════════════════════════════════════════════
    SPLIT SCREEN LAYOUT
    ═══════════════════════════════════════════════════════ */
-.splitScreen { display: flex; height: 100vh; padding-top: 48px; }
+.splitScreen { display: flex; height: 100vh; }
 
 /* ─── LEFT PANEL ───────────────────────────────────── */
 .leftPanel {

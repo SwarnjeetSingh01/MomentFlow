@@ -162,21 +162,23 @@ function inlineFormat(text) {
 /* ─── PROMPTS ─────────────────────────────────────────────────────── */
 const CREATOR_CONTEXT = `
 ACCOUNT: @usknagpur — Urban Sketchers Nagpur | 3,825 followers | ~3,500 avg reel views
-GAP: Only event documentation posted — zero tutorials/tips/process reels.
-GOAL: Break follower bubble, grow non-follower reach. City: Nagpur, India.
+COMMUNITY CORE: A meetup community where people of all professions (not just professional artists) come together to sketch live on location using any medium.
+MAIN IDEA: Live sketching, connecting with diverse people, and understanding different art styles and approaches. The only criterion is a willingness to sketch.
+GOAL: Break the follower bubble, grow non-follower reach, and encourage more locals to join the meetups. City: Nagpur, India.
 `;
 
 const buildPrompt = (agentId, niche, location, outputs) => {
   const loc = location ? location.trim() : "";
-  const locNote = loc ? `The sketching location is: "${loc}". All agents must weave this location into their output as instructed below.` : "";
+  const locNote = loc ? `LOCATION CONTEXT: The chosen location is "${loc}". You must infer the atmosphere, visual traits, and cultural vibe of this specific place. Tailor all your ideas, script concepts, and shot lists directly to the unique characteristics of this location.` : "";
 
   if (agentId === 1) {
-    const locSearch = loc ? `Run an additional search specifically for "${niche}" + "${loc}" to find local or regional content patterns.` : "";
+    const locSearch = loc ? `Since the location is "${loc}", suggest one content angle that specifically leverages the unique visual or cultural aspects of this place.` : "";
     return `You are Agent 01 — Content Scout for @usknagpur (Urban Sketchers Nagpur).
 ${CREATOR_CONTEXT}
 ${locNote}
 
-Using your knowledge of social media content trends for art and urban sketching creators, identify the TOP 10 highest-performing content patterns on YouTube and Instagram for this niche.
+Using your knowledge of social media content trends for art communities, creative meetups, and live sketching, identify the TOP 10 highest-performing content patterns on YouTube and Instagram for this niche.
+Focus on formats that highlight community connection, diverse art styles, and lower the barrier to entry for beginners.
 ${locSearch}
 
 Be specific and realistic. Reference real creator styles and formats you know work well.
@@ -184,11 +186,11 @@ Be specific and realistic. Reference real creator styles and formats you know wo
 Produce a Markdown table:
 | # | Platform | Title / Caption Pattern | Est. Views | Engagement Rate | Hook Style | Format | Why It Works |
 
-Hook Style: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | ASPIRATIONAL | NUMBER/LIST
-Format: Reel | YouTube Short | YouTube Long-form | Tutorial | Time-lapse | POV | Carousel
+Hook Style: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | INCLUSIVE | BEHIND-THE-SCENES
+Format: Reel | YouTube Short | YouTube Long-form | Mini-Doc | Time-lapse | POV | Carousel
 
 CONTENT GAP ALERT:
-Name ONE angle audiences want but very few creators are doing well.
+Name ONE angle audiences want (e.g., showing beginners alongside pros, exploring different mediums) but very few creators are doing well.
 
 NON-FOLLOWER REACH ANALYSIS:
 Name the #1 format pulling non-follower reach in this niche and why.`;
@@ -202,20 +204,20 @@ RESEARCH DATA FROM AGENT 01:
 ${outputs[0] || ""}
 
 SECTION 1 — SCORING
-Score each post in the research data (Reach, Engagement, Save/Intent).
+Score each post in the research data based on Reach, Engagement, and Community-Building Potential (how likely it is to make someone attend a meetup).
 
 SECTION 2 — TOPIC CLUSTERS
-Group posts into 4–6 clusters. Name each cluster: [TECHNIQUE or TOPIC] + [AUDIENCE EMOTION or OUTCOME].
+Group posts into 4–6 clusters. Name each cluster: [TECHNIQUE/VIBE] + [AUDIENCE EMOTION/OUTCOME].
 
 SECTION 3 — RECOMMENDED TOPIC
-Based on the clusters, select the #1 RECOMMENDED TOPIC for the creator to execute next. Provide:
+Based on the clusters, select the #1 RECOMMENDED TOPIC for the creator to execute next. The topic must highlight the inclusive, multi-medium, live-sketching nature of the group. Provide:
 - Topic Name
 - Content Angle
 - Why Now
 - Estimated Reach Potential`;
   }
   if (agentId === 3) {
-    const locGround = loc ? `LOCATION GROUNDING: Ensure at least one concept heavily features "${loc}" and specific sensory details from that place.` : "";
+    const locGround = loc ? `LOCATION GROUNDING: Ensure the scripts feel authentic to "${loc}". Use its specific sensory details, landmarks, or atmosphere to drive the creative concepts.` : "";
     return `You are Agent 03 — Script Writer for @usknagpur (Urban Sketchers Nagpur).
 ${CREATOR_CONTEXT}
 ${locNote}
@@ -224,18 +226,25 @@ VALIDATION DATA FROM AGENT 02:
 ${outputs[1] || ""}
 
 TASK: Generate 3 DISTINCT, premium short-form script concepts based on the RECOMMENDED TOPIC.
+You know that great Urban Sketching content often involves:
+- Cinematic B-roll (the environment)
+- Time-lapses (sketch progression)
+- Artist Voice/Interviews (explaining approach/medium)
+- Masterpiece Reveals
+However, YOU decide the absolute best structure and format for each specific concept. Be creative!
+
 ${locGround}
 
 For EACH of the 3 scripts, output exactly this format:
 ### Script [1/2/3]: [Catchy Title]
-- **Vibe:** [e.g. Fast-paced, Meditative, Educational]
-- **Beat 1 (Value Open - 0-3s):** [Visual action] | Audio: [Core hook idea]
-- **Beat 2 (The Technique - 3-15s):** [Visual action] | Audio: [Core insight/tip]
-- **Beat 3 (The Payoff - 15-25s):** [Visual reveal] | Audio: [Emotional shift]
-- **CTA (25-30s):** [Visual text] | Audio: [Save/Comment prompt]`;
+- **Vibe:** [e.g. Community-focused, Inspiring, Educational, Fast-paced]
+- **Beat 1 (0-3s):** [Visual action] | Audio: [Core hook idea/Voiceover]
+- **Beat 2 (3-15s):** [Visual action] | Audio: [Insight/Action/Interview]
+- **Beat 3 (15-25s):** [Visual action] | Audio: [Progression/Payoff]
+- **CTA (25-30s):** [Visual text] | Audio: [Prompt to join/comment/share]`;
   }
   if (agentId === 4) {
-    const locHooks = loc ? `LOCATION RULE: At least 1 hook per script MUST reference "${loc}" by name.` : "";
+    const locHooks = loc ? `LOCATION RULE: At least 1 hook per script MUST reference gathering at "${loc}".` : "";
     return `You are Agent 04 — Hook Generator for @usknagpur (Urban Sketchers Nagpur).
 ${CREATOR_CONTEXT}
 ${locNote}
@@ -245,7 +254,7 @@ ${outputs[2] || ""}
 ${locHooks}
 
 TASK: For EACH of the 3 scripts, generate exactly 2 scroll-stopping hooks.
-CRITICAL: First 3 words must create tension/curiosity. Never start with "I", "Are you", "Do you", "Hey".
+CRITICAL: First 3 words must create tension, curiosity, or a sense of belonging. Never start with "I", "Are you", "Do you", "Hey". Focus on lowering the barrier to entry for beginners or highlighting the diverse community.
 
 ### Hooks for Script 1
 1. **[Pattern Name]:** "[Hook - max 15 words]"
@@ -266,19 +275,21 @@ ${CREATOR_CONTEXT}
 SCRIPTS FROM AGENT 03:
 ${outputs[2] || ""}
 
-TASK: Concise Recording Guide. Tight bullet points.
+TASK: Concise Recording Guide. You are the expert director—decide exactly what shots and audio the creator needs to capture to make these scripts work perfectly.
 
 ### Master Shot List
-- [Shot Type]: [How to film]
+- **[Shot/Element Type]:** [How to film it]
+- **[Shot/Element Type]:** [How to film it]
 
 ### Script-Specific Needs
-- **Script 1:** [Props/lighting/camera]
-- **Script 2:** [Props/lighting/camera]
-- **Script 3:** [Props/lighting/camera]
+- **Script 1:** [Specific props/lighting/camera/people needed]
+- **Script 2:** [Specific props/lighting/camera/people needed]
+- **Script 3:** [Specific props/lighting/camera/people needed]
 
 ### Common Filming Mistakes to Avoid
 - [Mistake 1]
-- [Mistake 2]`;
+- [Mistake 2]
+- [Mistake 3]`;
   }
   return "";
 };
@@ -457,17 +468,6 @@ export default function UrbanSketcher() {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerBrand}>
-          <Sparkles size={15} color="#d4914a" />
-          <span className={styles.headerTitle}>UrbanSketcher</span>
-        </div>
-        <div className={styles.headerLinks}>
-          <a href="#" className={styles.headerLink}><Info size={12} /> How it works</a>
-        </div>
-      </header>
-
       <div className={styles.splitScreen}>
         {/* ─── LEFT PANEL ─── */}
         <div className={styles.leftPanel}>
@@ -475,15 +475,6 @@ export default function UrbanSketcher() {
             {/* 3D Orb — small, ambient */}
             <div className={styles.orbArea}>
               <Agent3DScene agentId={activeAgentId} />
-            </div>
-
-            {/* Brand with ink stroke */}
-            <div className={styles.brandArea}>
-              <h2 className={styles.brandName}>
-                UrbanSketcher
-                <InkUnderline />
-              </h2>
-              <p className={styles.brandSub}>AI Content Intelligence Pipeline</p>
             </div>
 
             {/* Progress dots */}
