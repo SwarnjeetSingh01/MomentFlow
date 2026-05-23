@@ -5,6 +5,7 @@ export const metadata = {
 };
 
 import { AuthProvider } from '../context/AuthContext';
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({ children }) {
   return (
@@ -16,6 +17,7 @@ export default function RootLayout({ children }) {
       </head>
       <body style={{ margin: 0, padding: 0, background: '#0a0a0a', overflowX: 'hidden' }}>
         <AuthProvider>{children}</AuthProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
