@@ -445,6 +445,12 @@ export default function UrbanSketcher() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, authLoading, router]);
+
+  useEffect(() => {
     try {
       const saved = localStorage.getItem("usk_history");
       if (saved) setHistory(JSON.parse(saved));
