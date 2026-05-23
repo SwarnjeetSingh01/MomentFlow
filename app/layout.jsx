@@ -4,6 +4,8 @@ export const metadata = {
     "5-agent AI pipeline for urban sketching creators — powered by Claude.",
 };
 
+import { AuthProvider } from '../context/AuthContext';
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
@@ -12,7 +14,9 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body style={{ margin: 0, padding: 0, background: '#0a0a0a', overflowX: 'hidden' }}>{children}</body>
+      <body style={{ margin: 0, padding: 0, background: '#0a0a0a', overflowX: 'hidden' }}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

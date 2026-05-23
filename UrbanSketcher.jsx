@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useAuth } from "./context/AuthContext";
+import { auth } from "./lib/firebase";
+import { signOut } from "firebase/auth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, BrainCircuit, PenTool, MessageSquare, Video,
   CheckCircle, Copy, RotateCcw, Play, MapPin, 
-  ChevronDown, ChevronUp, Loader2, Info, AlertCircle, Sparkles, RotateCw
+  ChevronDown, ChevronUp, Loader2, Info, AlertCircle, Sparkles, RotateCw, History, X, Clock, Users, Target, LogOut
 } from "lucide-react";
 import styles from "./UrbanSketcher.module.css";
 import Agent3DScene from "./Agent3D";
@@ -160,21 +165,24 @@ function inlineFormat(text) {
 }
 
 /* ─── PROMPTS ─────────────────────────────────────────────────────── */
-const CREATOR_CONTEXT = `
+const CREATOR_CONTEXT = (skill, focus) => `
 ACCOUNT: @usknagpur — Urban Sketchers Nagpur | 3,825 followers | ~3,500 avg reel views
 COMMUNITY CORE: A meetup community where people of all professions (not just professional artists) come together to sketch live on location using any medium.
+EVENT FOCUS: ${focus}.
+TARGET SKILL LEVEL: ${skill}.
 MAIN IDEA: Live sketching, connecting with diverse people, and understanding different art styles and approaches. The only criterion is a willingness to sketch.
 GOAL: Break the follower bubble, grow non-follower reach, and encourage more locals to join the meetups. City: Nagpur, India.
 `;
 
-const buildPrompt = (agentId, niche, location, outputs) => {
+const buildPrompt = (agentId, niche, location, skillLevel, eventFocus, outputs) => {
   const loc = location ? location.trim() : "";
   const locNote = loc ? `LOCATION CONTEXT: The chosen location is "${loc}". You must infer the atmosphere, visual traits, and cultural vibe of this specific place. Tailor all your ideas, script concepts, and shot lists directly to the unique characteristics of this location.` : "";
+  const context = CREATOR_CONTEXT(skillLevel, eventFocus);
 
   if (agentId === 1) {
     const locSearch = loc ? `Since the location is "${loc}", suggest one content angle that specifically leverages the unique visual or cultural aspects of this place.` : "";
     return `You are Agent 01 — Content Scout for @usknagpur (Urban Sketchers Nagpur).
-${CREATOR_CONTEXT}
+${context}
 ${locNote}
 
 Using your knowledge of social media content trends for art communities, creative meetups, and live sketching, identify the TOP 10 highest-performing content patterns on YouTube and Instagram for this niche.
@@ -197,7 +205,7 @@ Name the #1 format pulling non-follower reach in this niche and why.`;
   }
   if (agentId === 2) {
     return `You are Agent 02 — Validation Engine. You analyze content data and produce a prioritized strategy brief for @usknagpur.
-${CREATOR_CONTEXT}
+${context}
 ${locNote}
 
 RESEARCH DATA FROM AGENT 01:
@@ -219,7 +227,7 @@ Based on the clusters, select the #1 RECOMMENDED TOPIC for the creator to execut
   if (agentId === 3) {
     const locGround = loc ? `LOCATION GROUNDING: Ensure the scripts feel authentic to "${loc}". Use its specific sensory details, landmarks, or atmosphere to drive the creative concepts.` : "";
     return `You are Agent 03 — Script Writer for @usknagpur (Urban Sketchers Nagpur).
-${CREATOR_CONTEXT}
+${context}
 ${locNote}
 
 VALIDATION DATA FROM AGENT 02:
@@ -246,7 +254,7 @@ For EACH of the 3 scripts, output exactly this format:
   if (agentId === 4) {
     const locHooks = loc ? `LOCATION RULE: At least 1 hook per script MUST reference gathering at "${loc}".` : "";
     return `You are Agent 04 — Hook Generator for @usknagpur (Urban Sketchers Nagpur).
-${CREATOR_CONTEXT}
+${context}
 ${locNote}
 
 SCRIPTS FROM AGENT 03:
@@ -286,6 +294,12 @@ TASK: Concise Recording Guide. You are the expert director—decide exactly what
 - **Script 2:** [Specific props/lighting/camera/people needed]
 - **Script 3:** [Specific props/lighting/camera/people needed]
 
+### AI Storyboard Prompts
+Generate 3 highly detailed image generation prompts (for Midjourney/DALL-E) that visually describe the most cinematic shot from each script. Format them as:
+- **Storyboard 1:** "A wide cinematic shot of..."
+- **Storyboard 2:** "A close-up over-the-shoulder shot of..."
+- **Storyboard 3:** "A beautiful time-lapse setup showing..."
+
 ### Common Filming Mistakes to Avoid
 - [Mistake 1]
 - [Mistake 2]
@@ -313,8 +327,8 @@ const AGENT_3D_LABELS = {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function runAgent({ agentId, niche, location, outputs, onRetry }) {
-  const prompt = buildPrompt(agentId, niche, location, outputs);
+async function runAgent({ agentId, niche, location, skillLevel, eventFocus, outputs, onRetry }) {
+  const prompt = buildPrompt(agentId, niche, location, skillLevel, eventFocus, outputs);
   const body = { model: "claude-sonnet-4-20250514", max_tokens: 1500, messages: [{ role: "user", content: prompt }] };
 
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -410,6 +424,8 @@ function LiveFeed({ agents, outputs }) {
   );
 }
 
+
+
 /* ─── MAIN COMPONENT ──────────────────────────────────────────────── */
 export default function UrbanSketcher() {
   const [niche, setNiche] = useState("urban sketching");
@@ -418,9 +434,22 @@ export default function UrbanSketcher() {
   const [agents, setAgents] = useState(
     AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false }))
   );
+  const [skillLevel, setSkillLevel] = useState("Mixed");
+  const [eventFocus, setEventFocus] = useState("General Sketching");
+  const [history, setHistory] = useState([]);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [allDone, setAllDone] = useState(false);
   const [copyMsg, setCopyMsg] = useState("");
   const outputsRef = useRef([]);
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("usk_history");
+      if (saved) setHistory(JSON.parse(saved));
+    } catch (e) { console.error("Failed to load history", e); }
+  }, []);
 
   const setAgent = (id, patch) =>
     setAgents((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)));
@@ -436,7 +465,7 @@ export default function UrbanSketcher() {
       if (i > 0) await sleep(20000);
       setAgent(agentId, { status: "running", retry: 0 });
       try {
-        const text = await runAgent({ agentId, niche, location, outputs: outputsRef.current, onRetry: (n) => setAgent(agentId, { retry: n }) });
+        const text = await runAgent({ agentId, niche, location, skillLevel, eventFocus, outputs: outputsRef.current, onRetry: (n) => setAgent(agentId, { retry: n }) });
         outputsRef.current[i] = text;
         setAgent(agentId, { status: "done", output: text, expanded: true });
       } catch (err) {
@@ -445,7 +474,28 @@ export default function UrbanSketcher() {
       }
     }
     setRunning(false); setAllDone(true);
-  }, [running, niche, location]);
+
+    // Save to history
+    const newItem = {
+      id: Date.now(),
+      date: new Date().toLocaleDateString(),
+      niche, location, skillLevel, eventFocus,
+      outputs: [...outputsRef.current]
+    };
+    setHistory(prev => {
+      const updated = [newItem, ...prev].slice(0, 50); // keep last 50
+      localStorage.setItem("usk_history", JSON.stringify(updated));
+      return updated;
+    });
+  }, [running, niche, location, skillLevel, eventFocus]);
+
+  const loadHistoryItem = (item) => {
+    setNiche(item.niche); setLocation(item.location || "");
+    setSkillLevel(item.skillLevel || "Mixed"); setEventFocus(item.eventFocus || "General Sketching");
+    outputsRef.current = [...item.outputs];
+    setAgents(AGENT_META.map((a, i) => ({ ...a, status: "done", output: item.outputs[i] || "", error: "", retry: 0, expanded: false })));
+    setAllDone(true); setIsHistoryOpen(false);
+  };
 
   const copyAll = () => {
     const all = outputsRef.current.map((o, i) => o ? `=== AGENT ${i + 1}: ${AGENT_META[i].name} ===\n\n${o}` : "").filter(Boolean).join("\n\n" + "─".repeat(60) + "\n\n");
@@ -468,6 +518,63 @@ export default function UrbanSketcher() {
 
   return (
     <div className={styles.container}>
+      {/* Auth Header */}
+      {!authLoading && (
+        <div className={styles.authHeader}>
+          {user ? (
+            <>
+              <span className={styles.userEmail}>{user.email}</span>
+              <button className={styles.authBtn} onClick={async (e) => {
+                e.preventDefault();
+                try {
+                  console.log("Signing out...");
+                  await signOut(auth);
+                  router.push("/login");
+                } catch (err) {
+                  console.error("SignOut Error: ", err);
+                  alert("Failed to sign out: " + err.message);
+                }
+              }}>Sign Out</button>
+            </>
+          ) : (
+            <Link href="/login" className={styles.authBtn}>Sign In</Link>
+          )}
+        </div>
+      )}
+
+      {/* History Button & Sidebar */}
+      <button className={styles.historyBtn} onClick={() => setIsHistoryOpen(true)} title="History">
+        <History size={18} />
+      </button>
+
+      <AnimatePresence>
+        {isHistoryOpen && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={styles.historyOverlay} onClick={() => setIsHistoryOpen(false)} />
+            <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", bounce: 0, duration: 0.4 }} className={styles.historySidebar}>
+              <div className={styles.historyHeader}>
+                <h3>History</h3>
+                <button className={styles.closeHistoryBtn} onClick={() => setIsHistoryOpen(false)}><X size={20} /></button>
+              </div>
+              <div className={styles.historyList}>
+                {history.length === 0 ? (
+                  <div className={styles.historyEmpty}>No history yet. Run your first pipeline!</div>
+                ) : (
+                  history.map(item => (
+                    <div key={item.id} className={styles.historyItem} onClick={() => loadHistoryItem(item)}>
+                      <div className={styles.historyItemTitle}>{item.location || item.niche}</div>
+                      <div className={styles.historyItemMeta}>
+                        <Clock size={12} /> {item.date} • {item.eventFocus}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       <div className={styles.splitScreen}>
         {/* ─── LEFT PANEL ─── */}
         <div className={styles.leftPanel}>
@@ -522,6 +629,30 @@ export default function UrbanSketcher() {
                 <div className={styles.inputBarWrapper}>
                   <MapPin size={15} className={styles.inputBarIcon} />
                   <input id="location-input" value={location} onChange={(e) => setLocation(e.target.value)} disabled={running} placeholder="Futala Lake, Nagpur" />
+                </div>
+              </div>
+              <div className={styles.inputBarField}>
+                <label>Skill Level</label>
+                <div className={styles.inputBarWrapper}>
+                  <Users size={15} className={styles.inputBarIcon} />
+                  <select value={skillLevel} onChange={(e) => setSkillLevel(e.target.value)} disabled={running}>
+                    <option value="Mixed">Mixed (All Levels)</option>
+                    <option value="Beginner Friendly">Beginner Friendly</option>
+                    <option value="Advanced Workshop">Advanced Workshop</option>
+                  </select>
+                </div>
+              </div>
+              <div className={styles.inputBarField}>
+                <label>Event Focus</label>
+                <div className={styles.inputBarWrapper}>
+                  <Target size={15} className={styles.inputBarIcon} />
+                  <select value={eventFocus} onChange={(e) => setEventFocus(e.target.value)} disabled={running}>
+                    <option value="General Sketching">General Sketching</option>
+                    <option value="Watercolor">Watercolor Focus</option>
+                    <option value="Ink Wash">Ink Wash Focus</option>
+                    <option value="Architecture">Architecture</option>
+                    <option value="People & Crowds">People & Crowds</option>
+                  </select>
                 </div>
               </div>
               <button onClick={runPipeline} disabled={running || !niche.trim()} className={`${styles.runBtn} ${running ? styles.running : ''}`}>

@@ -90,7 +90,44 @@
 /* ═══════════════════════════════════════════════════════
    SPLIT SCREEN LAYOUT
    ═══════════════════════════════════════════════════════ */
-.splitScreen { display: flex; height: 100vh; }
+.splitScreen { display: flex; height: 100vh; padding-top: 48px; gap: 20px; }
+
+/* Auth Header */
+.authHeader {
+  position: absolute;
+  top: 24px;
+  right: 80px; /* Leave space for history button */
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 20;
+}
+.userEmail {
+  color: var(--text-3);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.authBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-1);
+  color: var(--text-2);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.authBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-1);
+  border-color: var(--text-3);
+}
 
 /* ─── LEFT PANEL ───────────────────────────────────── */
 .leftPanel {
@@ -277,18 +314,20 @@
   transition: border-color 0.3s var(--ease);
 }
 .inputBar:focus-within { border-color: var(--border-active); }
-.inputBarField { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.inputBarField { flex: 1 1 100px; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
 .inputBarField label {
   font-size: 0.67rem; font-weight: 600; color: var(--text-3);
   text-transform: uppercase; letter-spacing: 0.1em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.inputBarWrapper { position: relative; display: flex; align-items: center; }
+.inputBarWrapper { position: relative; display: flex; align-items: center; width: 100%; flex: 1; min-width: 0; }
 .inputBarIcon {
   position: absolute; left: 11px; color: var(--text-4);
   pointer-events: none; transition: color 0.2s;
 }
-.inputBarField input {
-  width: 100%; padding: 11px 11px 11px 36px;
+.inputBarField input,
+.inputBarField select {
+  flex: 1; width: 100%; min-width: 0; padding: 11px 11px 11px 36px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-1);
   background: rgba(255, 255, 255, 0.03);
@@ -297,12 +336,26 @@
   font-family: 'Outfit', sans-serif; font-size: 0.88rem;
   transition: all 0.25s var(--ease);
 }
+.inputBarField select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  cursor: pointer;
+}
+.inputBarField select option {
+  background: var(--bg-elevated);
+  color: var(--text-1);
+}
 .inputBarField input::placeholder { color: var(--text-4); }
-.inputBarField input:focus {
+.inputBarField input:focus,
+.inputBarField select:focus {
   outline: none; border-color: var(--accent);
-  background: rgba(212, 145, 74, 0.04);
+  background-color: rgba(212, 145, 74, 0.04);
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.2), 0 0 0 3px var(--accent-glow), 0 0 20px rgba(212,145,74,0.08);
 }
+
+
 
 /* Run button */
 .runBtn {
