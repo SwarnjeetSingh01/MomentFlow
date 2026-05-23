@@ -1,7 +1,7 @@
 export const metadata = {
   title: "Urban Sketcher — AI Content Intelligence",
   description:
-    "4-agent AI pipeline for urban sketching creators — powered by OpenAI.",
+    "5-agent AI pipeline for urban sketching creators — powered by Claude.",
 };
 
 export default function RootLayout({ children }) {
@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body style={{ margin: 0, padding: 0 }}>{children}</body>
+      <body style={{ margin: 0, padding: 0, background: '#0a0a0a', overflowX: 'hidden' }}>{children}</body>
     </html>
   );
 }
