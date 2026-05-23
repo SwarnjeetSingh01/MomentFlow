@@ -140,6 +140,7 @@
 .leftInner {
   flex: 1; display: flex; flex-direction: column;
   padding: 20px; gap: 16px; position: relative; z-index: 1;
+  min-height: 0;
 }
 
 /* 3D Canvas area — smaller, ambient */
@@ -177,6 +178,63 @@
 .brandSub {
   font-size: 0.78rem; color: var(--text-3); margin-top: 4px;
   letter-spacing: 0.02em;
+}
+
+/* History Sidebar */
+.historyBtn {
+  position: absolute; top: 24px; right: 24px; z-index: 20;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-1);
+  color: var(--text-2); padding: 8px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+}
+.historyBtn:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-1); border-color: var(--text-3); }
+
+.historyOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 90;
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+}
+.historySidebar {
+  position: fixed; top: 0; right: 0; bottom: 0; width: 350px;
+  background: var(--bg-surface); border-left: 1px solid var(--border-1);
+  z-index: 100; display: flex; flex-direction: column;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+}
+.historyHeader {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 24px; border-bottom: 1px solid var(--border-1);
+}
+.historyHeader h3 { margin: 0; font-size: 1.2rem; color: var(--text-1); }
+.closeHistoryBtn {
+  background: transparent; border: none; color: var(--text-3); cursor: pointer;
+  padding: 4px; transition: color 0.2s; display: flex; align-items: center; justify-content: center;
+}
+.closeHistoryBtn:hover { color: var(--text-1); }
+
+.historyList {
+  flex: 1; overflow-y: auto; padding: 16px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
+}
+.historyList::-webkit-scrollbar { width: 4px; }
+.historyList::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 10px; }
+
+.historyEmpty {
+  text-align: center; color: var(--text-4); margin-top: 40px; font-size: 0.9rem;
+}
+.historyItem {
+  background: var(--bg-card); border: 1px solid var(--border-1);
+  border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px;
+  cursor: pointer; transition: all 0.2s;
+}
+.historyItem:hover {
+  background: var(--bg-card-hover); border-color: var(--border-2);
+  transform: translateY(-2px);
+}
+.historyItemTitle {
+  font-weight: 600; color: var(--text-1); font-size: 0.95rem; margin-bottom: 6px;
+}
+.historyItemMeta {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.75rem; color: var(--text-3);
 }
 
 /* Live Feed */

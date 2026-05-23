@@ -60,29 +60,31 @@ function extractInsightsFromOutput(agentId, output) {
   if (!output) return [];
   const insights = [];
   
+  const clean = (str) => str ? str.replace(/\*\*/g, '').replace(/"/g, '').trim() : '';
+
   if (agentId === 1) {
     const tableMatch = output.match(/\|[^|]+\|[^|]+\|([^|]+)\|/g);
     if (tableMatch && tableMatch.length > 2) {
-      insights.push({ label: "Trending Format Detected", value: tableMatch[1]?.replace(/\|/g, '').trim().slice(0, 40) || "POV Sketch Transitions", color: "" });
+      insights.push({ label: "Trending Format Detected", value: clean(tableMatch[1].replace(/\|/g, '')).slice(0, 40) || "POV Sketch Transitions", color: "" });
     }
     const gapMatch = output.match(/CONTENT GAP.*?\n(.+)/i);
-    if (gapMatch) insights.push({ label: "Content Gap Alert", value: gapMatch[1].trim().slice(0, 50), color: "amber" });
+    if (gapMatch) insights.push({ label: "Content Gap Alert", value: clean(gapMatch[1]).slice(0, 50), color: "amber" });
     const reachMatch = output.match(/NON-FOLLOWER.*?\n(.+)/i);
-    if (reachMatch) insights.push({ label: "Non-Follower Reach", value: reachMatch[1].trim().slice(0, 50), color: "green" });
+    if (reachMatch) insights.push({ label: "Non-Follower Reach", value: clean(reachMatch[1]).slice(0, 50), color: "green" });
   }
   if (agentId === 2) {
     const topicMatch = output.match(/Topic Name[:\s]*(.+)/i);
-    if (topicMatch) insights.push({ label: "Recommended Topic", value: topicMatch[1].trim().slice(0, 40), color: "amber" });
+    if (topicMatch) insights.push({ label: "Recommended Topic", value: clean(topicMatch[1]).slice(0, 40), color: "amber" });
     const angleMatch = output.match(/Content Angle[:\s]*(.+)/i);
-    if (angleMatch) insights.push({ label: "Content Angle", value: angleMatch[1].trim().slice(0, 45), color: "" });
+    if (angleMatch) insights.push({ label: "Content Angle", value: clean(angleMatch[1]).slice(0, 45), color: "" });
     const reachMatch = output.match(/Reach Potential[:\s]*(.+)/i);
-    if (reachMatch) insights.push({ label: "Reach Potential", value: reachMatch[1].trim().slice(0, 30), color: "green" });
+    if (reachMatch) insights.push({ label: "Reach Potential", value: clean(reachMatch[1]).slice(0, 30), color: "green" });
   }
   if (agentId === 3) {
     const scripts = output.match(/### Script \d[:/]?\s*(.+)/gi);
     if (scripts) {
       scripts.forEach((s, i) => {
-        insights.push({ label: `Script ${i + 1}`, value: s.replace(/### Script \d[:/]?\s*/i, '').trim().slice(0, 40), color: i === 0 ? "amber" : "" });
+        insights.push({ label: `Script ${i + 1}`, value: clean(s.replace(/### Script \d[:/]?\s*/i, '')).slice(0, 40), color: i === 0 ? "amber" : "" });
       });
     }
   }
@@ -90,7 +92,7 @@ function extractInsightsFromOutput(agentId, output) {
     const hooks = output.match(/"([^"]{10,60})"/g);
     if (hooks) {
       hooks.slice(0, 3).forEach((h, i) => {
-        insights.push({ label: `Top Hook ${i + 1}`, value: h.replace(/"/g, '').slice(0, 45), color: i === 0 ? "amber" : "" });
+        insights.push({ label: `Top Hook ${i + 1}`, value: clean(h).slice(0, 45), color: i === 0 ? "amber" : "" });
       });
     }
   }
