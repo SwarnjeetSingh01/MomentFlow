@@ -189,30 +189,35 @@ const buildPrompt = (agentId, niche, location, skillLevel, eventFocus, outputs) 
 ${context}
 ${locNote}
 
-Using your knowledge of social media content trends for art communities, creative meetups, and live sketching, identify the BEST HIGH-IMPACT content strategies on YouTube and Instagram that will maximize follower growth and non-follower reach for this niche.
-Focus specifically on formats that:
-1. Break the follower bubble and pull in non-followers
+You are a content strategist who combines competitive research with growth strategy. Your job is to find SPECIFIC, PROVEN content ideas in the urban sketching / art community niche and rank them by their ability to grow followers and expand reach.
+
+STEP 1 — COMPETITIVE SCAN:
+Analyze what's actually working on YouTube and Instagram for art communities, creative meetups, and live sketching creators. Look at real content patterns, not generic advice.
+
+STEP 2 — GROWTH FILTER:
+From everything you find, select only the content ideas that specifically:
+1. Pull in non-followers (break the bubble)
 2. Drive profile visits → follows conversion
-3. Encourage saves and shares (algorithmic boost)
-4. Highlight community connection, diverse art styles, and lower the barrier to entry for beginners
+3. Encourage saves & shares (algorithmic boost)
+4. Highlight community, diverse art styles, and lower the barrier for beginners
 ${locSearch}
 
-Be specific and realistic. Reference real creator styles and formats you know work well.
+Be specific — reference real creator styles, actual content formats, and concrete title patterns.
 
-Produce a Markdown table with the best content strategies (rank by impact on growth):
-| # | Strategy | Platform | Content Format | Why It Drives Growth | Hook Style | Target Audience | Expected Impact on Reach |
+Produce a Markdown table (rank by follower growth potential, best first):
+| # | Content Idea | Platform | Format | Title/Caption Pattern | Hook Style | Why It Converts Followers | How to Execute |
 
 Hook Style: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | INCLUSIVE | BEHIND-THE-SCENES
-Content Format: Reel | YouTube Short | YouTube Long-form | Mini-Doc | Time-lapse | POV | Carousel
+Format: Reel | YouTube Short | YouTube Long-form | Mini-Doc | Time-lapse | POV | Carousel
 
 FOLLOWER GROWTH TACTICS:
-List the top 3 specific tactics this account should implement immediately to convert viewers into followers.
+List the top 3 specific, actionable tactics this account should implement immediately to convert viewers into followers. Be concrete (e.g., "Pin a 'What is Urban Sketching?' reel as your intro video") — no generic advice.
 
 CONTENT GAP OPPORTUNITY:
-Name ONE untapped angle that audiences are actively searching for but very few creators are executing well — and explain exactly how @usknagpur can own this space.
+Name ONE untapped angle that audiences are actively searching for but very few creators are executing well — and explain exactly how @usknagpur can own this space with a specific content series idea.
 
 NON-FOLLOWER REACH ANALYSIS:
-Name the #1 format pulling non-follower reach in this niche, why it works, and how to optimize for the algorithm.`;
+Name the #1 format pulling non-follower reach in this niche, why it works algorithmically, and give a step-by-step guide to optimize for it.`;
   }
   if (agentId === 2) {
     return `You are Agent 02 — Validation Engine. You analyze content data and produce a prioritized strategy brief for @usknagpur.
