@@ -631,7 +631,7 @@
   background: rgba(255,255,255,0.025);
   border: 1px solid var(--border-1);
   border-radius: var(--radius-md);
-  max-height: 460px; overflow-y: auto;
+  max-height: 600px; overflow-y: auto;
   scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.06) transparent;
 }
 .outputBlock::-webkit-scrollbar { width: 4px; }
@@ -654,22 +654,53 @@
 .markdownContent ul, .markdownContent ol { padding-left: 20px; margin: 6px 0; }
 .markdownContent li { margin: 4px 0; padding-left: 4px; font-size: 1.02rem; }
 .markdownContent li::marker { color: var(--accent); }
+/* Table scroll wrapper */
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 16px 0;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-md);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+.tableWrapper::-webkit-scrollbar { height: 6px; }
+.tableWrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+
 .markdownContent table {
-  width: 100%; border-collapse: collapse;
-  margin: 14px 0; font-size: 0.95rem;
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  font-size: 0.95rem;
+  min-width: 600px;
+}
+.markdownContent thead {
+  position: sticky; top: 0; z-index: 2;
 }
 .markdownContent th {
-  background: rgba(212,145,74,0.06); color: var(--accent);
-  font-weight: 600; text-align: left; padding: 10px 12px;
-  border-bottom: 1px solid var(--border-2);
-  font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.04em;
+  background: rgba(212,145,74,0.1); color: var(--accent);
+  font-weight: 700; text-align: left;
+  padding: 14px 16px;
+  border-bottom: 2px solid rgba(212,145,74,0.25);
+  font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
 }
+.markdownContent th:first-child { border-radius: var(--radius-md) 0 0 0; }
+.markdownContent th:last-child { border-radius: 0 var(--radius-md) 0 0; }
 .markdownContent td {
-  padding: 9px 12px; border-bottom: 1px solid var(--border-1);
+  padding: 14px 16px; border-bottom: 1px solid var(--border-1);
   color: var(--text-2); vertical-align: top; font-size: 0.95rem;
+  line-height: 1.6;
 }
+.markdownContent tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+.markdownContent tr:nth-child(odd) td { background: rgba(255,255,255,0.005); }
 .markdownContent tr:last-child td { border-bottom: none; }
-.markdownContent tr:hover td { background: rgba(255,255,255,0.015); }
+.markdownContent tr:last-child td:first-child { border-radius: 0 0 0 var(--radius-md); }
+.markdownContent tr:last-child td:last-child { border-radius: 0 0 var(--radius-md) 0; }
+.markdownContent tr:hover td { background: rgba(212,145,74,0.04); transition: background 0.2s; }
+.markdownContent td:first-child {
+  color: var(--accent); font-weight: 600;
+  white-space: nowrap;
+}
 .markdownContent code {
   font-family: 'JetBrains Mono', monospace; font-size: 0.92rem;
   background: rgba(212,145,74,0.08); padding: 2px 6px; border-radius: 4px; color: var(--accent);

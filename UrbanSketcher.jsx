@@ -142,16 +142,18 @@ function renderMarkdown(text) {
 }
 
 function renderTable(lines, key) {
-  const dataLines = lines.filter(l => !/^\|[\s-:|]+\|$/.test(l.trim()));
+  const dataLines = lines.filter(l => !/^[\s-:|]+$/.test(l.replace(/\|/g, '').trim()));
   if (dataLines.length === 0) return null;
   const parse = (line) => line.split('|').filter((_, i, a) => i > 0 && i < a.length - 1).map(c => c.trim());
   const headers = parse(dataLines[0]);
   const rows = dataLines.slice(1).map(parse);
   return (
-    <table key={`t-${key}`}>
-      <thead><tr>{headers.map((h, j) => <th key={j}>{inlineFormat(h)}</th>)}</tr></thead>
-      <tbody>{rows.map((row, ri) => <tr key={ri}>{row.map((c, ci) => <td key={ci}>{inlineFormat(c)}</td>)}</tr>)}</tbody>
-    </table>
+    <div key={`tw-${key}`} className={styles.tableWrapper}>
+      <table key={`t-${key}`}>
+        <thead><tr>{headers.map((h, j) => <th key={j}>{inlineFormat(h)}</th>)}</tr></thead>
+        <tbody>{rows.map((row, ri) => <tr key={ri}>{row.map((c, ci) => <td key={ci}>{inlineFormat(c)}</td>)}</tr>)}</tbody>
+      </table>
+    </div>
   );
 }
 
@@ -187,23 +189,30 @@ const buildPrompt = (agentId, niche, location, skillLevel, eventFocus, outputs) 
 ${context}
 ${locNote}
 
-Using your knowledge of social media content trends for art communities, creative meetups, and live sketching, identify the TOP 10 highest-performing content patterns on YouTube and Instagram for this niche.
-Focus on formats that highlight community connection, diverse art styles, and lower the barrier to entry for beginners.
+Using your knowledge of social media content trends for art communities, creative meetups, and live sketching, identify the BEST HIGH-IMPACT content strategies on YouTube and Instagram that will maximize follower growth and non-follower reach for this niche.
+Focus specifically on formats that:
+1. Break the follower bubble and pull in non-followers
+2. Drive profile visits → follows conversion
+3. Encourage saves and shares (algorithmic boost)
+4. Highlight community connection, diverse art styles, and lower the barrier to entry for beginners
 ${locSearch}
 
 Be specific and realistic. Reference real creator styles and formats you know work well.
 
-Produce a Markdown table:
-| # | Platform | Title / Caption Pattern | Est. Views | Engagement Rate | Hook Style | Format | Why It Works |
+Produce a Markdown table with the best content strategies (rank by impact on growth):
+| # | Strategy | Platform | Content Format | Why It Drives Growth | Hook Style | Target Audience | Expected Impact on Reach |
 
 Hook Style: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | INCLUSIVE | BEHIND-THE-SCENES
-Format: Reel | YouTube Short | YouTube Long-form | Mini-Doc | Time-lapse | POV | Carousel
+Content Format: Reel | YouTube Short | YouTube Long-form | Mini-Doc | Time-lapse | POV | Carousel
 
-CONTENT GAP ALERT:
-Name ONE angle audiences want (e.g., showing beginners alongside pros, exploring different mediums) but very few creators are doing well.
+FOLLOWER GROWTH TACTICS:
+List the top 3 specific tactics this account should implement immediately to convert viewers into followers.
+
+CONTENT GAP OPPORTUNITY:
+Name ONE untapped angle that audiences are actively searching for but very few creators are executing well — and explain exactly how @usknagpur can own this space.
 
 NON-FOLLOWER REACH ANALYSIS:
-Name the #1 format pulling non-follower reach in this niche and why.`;
+Name the #1 format pulling non-follower reach in this niche, why it works, and how to optimize for the algorithm.`;
   }
   if (agentId === 2) {
     return `You are Agent 02 — Validation Engine. You analyze content data and produce a prioritized strategy brief for @usknagpur.
