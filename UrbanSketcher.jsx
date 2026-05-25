@@ -231,6 +231,7 @@ The audience should feel: "these people are real", "this looks fun", "I could jo
 `;
 
 const buildPrompt = (agentId, niche, location, skillLevel, eventFocus, outputs) => {
+  const currentYear = new Date().getFullYear();
   const loc = location ? location.trim() : "";
   const locNote = loc ? `LOCATION CONTEXT: The chosen location is "${loc}". You must infer the atmosphere, visual traits, and cultural vibe of this specific place. Tailor all your ideas, script concepts, and shot lists directly to the unique characteristics of this location.` : "";
   const context = CREATOR_CONTEXT(skillLevel, eventFocus);
@@ -241,7 +242,7 @@ const buildPrompt = (agentId, niche, location, skillLevel, eventFocus, outputs) 
 ${context}
 ${locNote}
 
-You are an Instagram/TikTok-native content strategist. You think like an internet culture observer, NOT a creative agency. Your job is to find SPECIFIC content ideas based on the LATEST 2026 SOCIAL MEDIA TRENDS that people will SHARE, COMMENT on, and TAG their friends in.
+You are an Instagram/TikTok-native content strategist. You think like an internet culture observer, NOT a creative agency. Your job is to find SPECIFIC content ideas based on the LATEST ${currentYear} SOCIAL MEDIA TRENDS that people will SHARE, COMMENT on, and TAG their friends in.
 
 CRITICAL RULES:
 - Think like a creator scrolling Instagram, NOT a brand strategist in a meeting room.
@@ -263,7 +264,7 @@ INSTEAD, prioritize: humor, chaos, awkwardness, comparison, identity, personalit
 
 INTERNET CULTURE AWARENESS:
 Focus on: meme behavior, reel psychology, comment potential, replayability, "tag your friend" energy, highly recognizable situations.
-Think: what would blow up on Instagram Explore today in 2026, NOT what would win a film festival. Leverage current 2026 audio trends, editing styles, and internet humor.
+Think: what would blow up on Instagram Explore today in ${currentYear}, NOT what would win a film festival. Leverage current ${currentYear} audio trends, editing styles, and internet humor.
 
 CONTENT MIX (MANDATORY):
 - 40% RELATABLE / FUN: sketch fails, funny public reactions, chaotic moments, "guess who drew this", artist struggles, expectations vs reality, personality clashes
