@@ -841,7 +841,7 @@ export default function UrbanSketcher() {
 <html>
 <head>
 <meta charset="utf-8">
-<title>UrbanSketcher Plan</title>
+<title>MomentFlows Plan</title>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
   body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #222; background: #fdfdfd; }
@@ -867,7 +867,7 @@ export default function UrbanSketcher() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `UrbanSketcher-Plan-${new Date().toISOString().split('T')[0]}.html`;
+    a.download = `MomentFlows-Plan-${new Date().toISOString().split('T')[0]}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

@@ -64,7 +64,7 @@ export default function LoginPage() {
         <div className={styles.header}>
           <h1 className={styles.title}>Welcome Back</h1>
           <p className={styles.subtitle}>
-            Sign in to continue to Urban Sketcher
+            Sign in to continue to MomentFlows
           </p>
         </div>
 

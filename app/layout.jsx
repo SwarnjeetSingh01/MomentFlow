@@ -1,7 +1,7 @@
 export const metadata = {
-  title: "Urban Sketcher — AI Content Intelligence",
+  title: "MomentFlows — AI Content Intelligence",
   description:
-    "5-agent AI pipeline for urban sketching creators — powered by Claude.",
+    "5-agent AI pipeline for urban sketching creators.",
 };
 
 import { AuthProvider } from '../context/AuthContext';

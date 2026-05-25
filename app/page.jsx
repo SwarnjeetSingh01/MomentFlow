@@ -1,9 +1,9 @@
 import UrbanSketcher from "../UrbanSketcher";
 
 export const metadata = {
-  title: "Urban Sketcher — AI Content Intelligence",
+  title: "MomentFlows — AI Content Intelligence",
   description:
-    "4-agent AI pipeline for urban sketching creators. Finds trending content, validates topics, writes scripts, and generates hooks — powered by OpenAI.",
+    "5-agent AI pipeline for urban sketching creators.",
 };
 
 export default function Page() {
