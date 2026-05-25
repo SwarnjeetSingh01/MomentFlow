@@ -30,29 +30,29 @@ function InkUnderline() {
 /* ─── PROGRESSIVE INSIGHT SYSTEM ──────────────────────────────────── */
 const INSIGHT_TEMPLATES = {
   1: [
-    { label: "Scanning Platforms", value: "YouTube × Instagram", color: "" },
-    { label: "Content Patterns", value: "Analyzing top 10 performers...", color: "" },
-    { label: "Hook Styles Indexed", value: "7 pattern categories loaded", color: "amber" },
+    { label: "Scanning Platforms", value: "YouTube × Instagram — real content patterns", color: "" },
+    { label: "Content Mix", value: "40% Fun · 30% Community · 20% Art · 10% Edu", color: "" },
+    { label: "Shareability Filter", value: "Humor, identity, relatability, surprise", color: "amber" },
   ],
   2: [
-    { label: "Scoring Method", value: "Reach × Engagement × Save Intent", color: "" },
-    { label: "Cluster Detection", value: "Grouping into topic families...", color: "" },
-    { label: "Strategy Signal", value: "Ranking topic recommendations", color: "amber" },
+    { label: "Scoring Method", value: "Shareability × Authenticity × Growth", color: "" },
+    { label: "Content Pillars", value: "Mapping to 5 content pillars...", color: "" },
+    { label: "Strategy Signal", value: "Balancing raw + polished content", color: "amber" },
   ],
   3: [
-    { label: "Script Format", value: "Beat Sheet (condensed)", color: "" },
-    { label: "Angle Diversity", value: "Tutorial + Vlog + Mistake-Avoid", color: "" },
-    { label: "Target Duration", value: "25–30s per script", color: "amber" },
+    { label: "Script Style", value: "Documentary · Raw · Authentic", color: "" },
+    { label: "Personality Focus", value: "Recurring faces + real reactions", color: "" },
+    { label: "Retention Plan", value: "Pattern interrupts every 2-3s", color: "amber" },
   ],
   4: [
-    { label: "Hook Constraint", value: "First 3 words = maximum tension", color: "" },
-    { label: "Pattern Library", value: "6 hooks across 3 scripts", color: "" },
-    { label: "Attention Metric", value: "Sub-2s scroll-stop trigger", color: "amber" },
+    { label: "Hook Rule", value: "Direct, human, 1-second grab", color: "" },
+    { label: "Anti-Pattern", value: "No poetic/agency-style hooks", color: "" },
+    { label: "CTA Strategy", value: "Engagement-driving, not generic", color: "amber" },
   ],
   5: [
-    { label: "Output Format", value: "Shot list + filming guide", color: "" },
-    { label: "Camera Setup", value: "Phone-first production", color: "" },
-    { label: "Quality Gate", value: "Mistake avoidance checklist", color: "amber" },
+    { label: "Filming Style", value: "Phone-first, raw moments priority", color: "" },
+    { label: "Capture Focus", value: "Reactions, fails, real conversations", color: "" },
+    { label: "Authenticity Gate", value: "Real > Perfect checklist", color: "amber" },
   ],
 };
 
@@ -176,6 +176,16 @@ EVENT FOCUS: ${focus}.
 TARGET SKILL LEVEL: ${skill}.
 MAIN IDEA: Live sketching, connecting with diverse people, and understanding different art styles and approaches. The only criterion is a willingness to sketch.
 GOAL: Break the follower bubble, grow non-follower reach, and encourage more locals to join the meetups. City: Nagpur, India.
+
+BRAND IDENTITY: "Nagpur's most welcoming creative community" — Anyone can sketch. Art for everyone. Creativity without intimidation.
+This identity must reflect in every caption, narration, editing choice, music selection, and community interaction.
+
+CONTENT PHILOSOPHY (CRITICAL — FOLLOW STRICTLY):
+- AUTHENTICITY > POLISH. Documentary-style, natural reactions, imperfect moments, raw human behavior. Never over-produced or advertisement-like.
+- REQUIRED CONTENT MIX: 40% Relatable/Fun (sketch fails, funny reactions, chaos, expectations vs reality) | 30% Community/Emotional (beginner stories, first meetup, strangers sketching) | 20% Artistic/Cinematic (timelapses, reveals, location aesthetics) | 10% Educational (beginner tips, supplies, how to start).
+- HUMAN PERSONALITY: Build familiarity through recurring members, recognizable faces, inside jokes, community energy. Audience should recognize people from previous reels.
+- RAW > PERFECT: Include messy sketches, funny failures, unfinished work, spontaneous moments, awkward laughs, hesitation, nervousness, real conversations.
+- SHAREABILITY: Prioritize humor, identity, relatability, surprise, comparison, personality. High-share examples: "Engineer vs Designer sketch styles", "Beginner vs Experienced", "Expectations vs Reality".
 `;
 
 const buildPrompt = (agentId, niche, location, skillLevel, eventFocus, outputs) => {
@@ -184,37 +194,59 @@ const buildPrompt = (agentId, niche, location, skillLevel, eventFocus, outputs) 
   const context = CREATOR_CONTEXT(skillLevel, eventFocus);
 
   if (agentId === 1) {
-    const locSearch = loc ? `Since the location is "${loc}", suggest one content angle that specifically leverages the unique visual or cultural aspects of this place.` : "";
+    const locSearch = loc ? `Since the location is "${loc}", suggest content angles that specifically leverage the unique visual, cultural, or human aspects of this place — focus on what real, spontaneous interactions could happen there.` : "";
     return `You are Agent 01 — Content Scout for @usknagpur (Urban Sketchers Nagpur).
 ${context}
 ${locNote}
 
-You are a content strategist who combines competitive research with growth strategy. Your job is to find SPECIFIC, PROVEN content ideas in the urban sketching / art community niche and rank them by their ability to grow followers and expand reach.
+You are a content strategist who finds SPECIFIC, PROVEN content ideas and ranks them by their ability to grow followers, expand reach, and maximize shareability.
+
+CRITICAL RULES:
+- Prioritize AUTHENTIC, RAW, RELATABLE content over polished/cinematic content.
+- Every idea must feel like something real people would share with friends, NOT like an advertisement.
+- Hooks must be SIMPLE and DIRECT — like talking to a friend. NEVER poetic, agency-style, or overly dramatic.
+  GOOD hooks: "This uncle has never drawn before", "We stopped random people at Futala", "Everyone drew the same thing differently"
+  BAD hooks: "Five strangers, one sunset, different perspectives…"
 
 STEP 1 — COMPETITIVE SCAN:
-Analyze what's actually working on YouTube and Instagram for art communities, creative meetups, and live sketching creators. Look at real content patterns, not generic advice.
+Analyze what's actually working on YouTube and Instagram for art communities, creative meetups, and live sketching creators. Focus on content that feels raw and human, not over-produced.
 
-STEP 2 — GROWTH FILTER:
-From everything you find, select only the content ideas that specifically:
-1. Pull in non-followers (break the bubble)
-2. Drive profile visits → follows conversion
-3. Encourage saves & shares (algorithmic boost)
-4. Highlight community, diverse art styles, and lower the barrier for beginners
+STEP 2 — CONTENT MIX FILTER:
+Your ideas MUST follow this balance:
+- 40% RELATABLE / FUN: sketch fails, funny public reactions, chaotic moments, "guess who drew this", artist struggles, expectations vs reality
+- 30% COMMUNITY / EMOTIONAL: beginner stories, first meetup experiences, strangers sketching, community moments
+- 20% ARTISTIC / CINEMATIC: beautiful timelapses, sketch reveals, location aesthetics
+- 10% EDUCATIONAL: beginner tips, supplies, how to start sketching
+
+STEP 3 — SHAREABILITY & GROWTH FILTER:
+From your ideas, prioritize content that:
+1. People will SHARE (humor, identity, relatability, surprise, comparison)
+2. Pulls in non-followers (break the bubble)
+3. Drives profile visits → follows conversion
+4. Encourages saves & shares (algorithmic boost)
+5. Features HUMAN PERSONALITY — recurring faces, real reactions, recognizable community members
 ${locSearch}
 
 Be specific — reference real creator styles, actual content formats, and concrete title patterns.
 
-Produce a Markdown table (rank by follower growth potential, best first):
-| # | Content Idea | Platform | Format | Title/Caption Pattern | Hook Style | Why It Converts Followers | How to Execute |
+Produce a Markdown table (rank by shareability + growth potential, best first):
+| # | Content Idea | Category (Fun/Community/Art/Edu) | Platform | Format | Hook (Simple & Direct) | Why It Gets Shared | How to Execute |
 
-Hook Style: QUESTION | PAIN POINT | CURIOSITY GAP | BOLD CLAIM | BEFORE/AFTER | INCLUSIVE | BEHIND-THE-SCENES
 Format: Reel | YouTube Short | YouTube Long-form | Mini-Doc | Time-lapse | POV | Carousel
 
-FOLLOWER GROWTH TACTICS:
-List the top 3 specific, actionable tactics this account should implement immediately to convert viewers into followers. Be concrete (e.g., "Pin a 'What is Urban Sketching?' reel as your intro video") — no generic advice.
+CONTENT PILLARS — VARIETY CHECK:
+Confirm your ideas cover ALL 5 pillars (mark which ideas fall under each):
+A. Public Interaction (strangers sketching, public challenges, reactions)
+B. Community Stories (member spotlights, profession-based sketching, first meetup)
+C. Fun/Relatable (sketch fails, artist struggles, funny moments, chaos)
+D. Artistic/Cinematic (timelapses, aesthetic visuals, sketch reveals)
+E. Educational (beginner tips, materials, tutorials)
 
-CONTENT GAP OPPORTUNITY:
-Name ONE untapped angle that audiences are actively searching for but very few creators are executing well — and explain exactly how @usknagpur can own this space with a specific content series idea.
+FOLLOWER GROWTH TACTICS:
+List the top 3 specific, actionable tactics to convert viewers into followers. Be concrete (e.g., "Pin a 'What is Urban Sketching?' reel as your intro video") — no generic advice.
+
+HIGH-SHAREABILITY IDEAS:
+List 3 specific content ideas designed purely for maximum shares. Examples: "Engineer vs Designer sketch styles", "What your profession notices first", "Sketch expectations vs reality".
 
 NON-FOLLOWER REACH ANALYSIS:
 Name the #1 format pulling non-follower reach in this niche, why it works algorithmically, and give a step-by-step guide to optimize for it.`;
@@ -227,21 +259,42 @@ ${locNote}
 RESEARCH DATA FROM AGENT 01:
 ${outputs[0] || ""}
 
-SECTION 1 — SCORING
-Score each post in the research data based on Reach, Engagement, and Community-Building Potential (how likely it is to make someone attend a meetup).
+CRITICAL RULES:
+- Score content ideas by AUTHENTICITY and SHAREABILITY, not just reach.
+- Penalize ideas that feel over-produced, overly cinematic, or advertisement-like.
+- Reward ideas that feature: real human reactions, humor, relatable moments, personality, spontaneity.
+- Ensure the final recommendation maintains the 40/30/20/10 content mix.
 
-SECTION 2 — TOPIC CLUSTERS
-Group posts into 4–6 clusters. Name each cluster: [TECHNIQUE/VIBE] + [AUDIENCE EMOTION/OUTCOME].
+SECTION 1 — SCORING
+Score each content idea on these criteria (1-10 each):
+| # | Content Idea | Shareability | Authenticity | Growth Potential | Retention Power | Community Building | TOTAL |
+- Shareability: Would someone send this to a friend?
+- Authenticity: Does it feel real and raw, not scripted?
+- Growth Potential: Will non-followers discover and follow?
+- Retention Power: Will viewers watch till the end?
+- Community Building: Will it make someone want to attend a meetup?
+
+SECTION 2 — CONTENT PILLAR MAPPING
+Map all ideas into the 5 content pillars and flag any gaps:
+A. Public Interaction Content (strangers, challenges, reactions)
+B. Community Stories (spotlights, professions, first meetups)
+C. Fun/Relatable Content (fails, struggles, chaos, humor)
+D. Artistic/Cinematic Content (timelapses, reveals, aesthetics)
+E. Educational Content (tips, materials, tutorials)
+⚠ Flag if any pillar has zero ideas — suggest additions.
 
 SECTION 3 — RECOMMENDED TOPIC
-Based on the clusters, select the #1 RECOMMENDED TOPIC for the creator to execute next. The topic must highlight the inclusive, multi-medium, live-sketching nature of the group. Provide:
+Select the #1 RECOMMENDED TOPIC that scores highest AND feels authentically raw (not over-produced). Provide:
 - Topic Name
 - Content Angle
-- Why Now
-- Estimated Reach Potential`;
+- Content Pillar (which of the 5)
+- Why It Feels Authentic
+- Shareability Factor (why people will share it)
+- Estimated Reach Potential
+- Repetition Check: Confirm this is NOT just another "beginner transformation" or "strangers sketching" story. If it is, suggest a fresh twist.`;
   }
   if (agentId === 3) {
-    const locGround = loc ? `LOCATION GROUNDING: Ensure the scripts feel authentic to "${loc}". Use its specific sensory details, landmarks, or atmosphere to drive the creative concepts.` : "";
+    const locGround = loc ? `LOCATION GROUNDING: Ensure the scripts feel authentic to "${loc}". Use its specific sensory details, real people interactions, and atmosphere — but keep it RAW, not cinematic.` : "";
     return `You are Agent 03 — Script Writer for @usknagpur (Urban Sketchers Nagpur).
 ${context}
 ${locNote}
@@ -249,27 +302,39 @@ ${locNote}
 VALIDATION DATA FROM AGENT 02:
 ${outputs[1] || ""}
 
-TASK: Generate 3 DISTINCT, premium short-form script concepts based on the RECOMMENDED TOPIC.
-You know that great Urban Sketching content often involves:
-- Cinematic B-roll (the environment)
-- Time-lapses (sketch progression)
-- Artist Voice/Interviews (explaining approach/medium)
-- Masterpiece Reveals
-However, YOU decide the absolute best structure and format for each specific concept. Be creative!
+TASK: Generate 3 DISTINCT short-form script concepts based on the RECOMMENDED TOPIC.
+
+CRITICAL SCRIPT RULES:
+1. DOCUMENTARY STYLE — Scripts should feel like capturing real moments, NOT producing a commercial. Think "we happened to be filming" energy.
+2. HUMAN PERSONALITY — Every script MUST feature at least one recognizable person with a name, profession, or personality trait. Build recurring characters.
+3. RAW MOMENTS — Include: awkward laughs, unfinished sketches, hesitation, nervousness, real conversations, genuine reactions. These are FEATURES, not flaws.
+4. NO OVER-DRAMATIC NARRATION — Avoid overly emotional scripting, forced inspirational lines, or "creative agency" voiceover. Keep it conversational.
+5. RETENTION EDITING — Build in pattern interrupts every 2-3 seconds: reaction cuts, zoom cuts, text overlays, timer countdowns, split screens, reveal moments.
+6. AUTHENTICITY TEST — Ask yourself: "Would this feel fake if someone was watching over the creator's shoulder?" If yes, rewrite it.
+
+SCRIPT VARIETY (each script must be a DIFFERENT content pillar):
+- Script 1: Relatable/Fun (sketch fails, funny reactions, chaos, comparisons)
+- Script 2: Community/Human (real person story, genuine interaction, personality)
+- Script 3: Choose from remaining pillars (Artistic, Educational, or Public Interaction)
 
 ${locGround}
 
 For EACH of the 3 scripts, output exactly this format:
-### Script [1/2/3]: [Catchy Title]
-- **Vibe:** [e.g. Community-focused, Inspiring, Educational, Fast-paced]
-- **Beat 1 (0-3s):** [Visual action] | Audio: [Core hook idea/Voiceover]
-- **Beat 2 (3-15s):** [Visual action] | Audio: [Insight/Action/Interview]
-- **Beat 3 (15-25s):** [Visual action] | Audio: [Progression/Payoff]
-- **CTA (25-30s):** [Visual text] | Audio: [Prompt to join/comment/share]`;
+### Script [1/2/3]: [Simple, Direct Title — NOT poetic]
+- **Category:** [Fun/Community/Art/Edu/Public Interaction]
+- **Vibe:** [e.g. Chaotic-fun, Wholesome-raw, Casually-educational]
+- **Featured Person:** [Who appears — name/profession/trait. Build recurring faces.]
+- **Beat 1 (0-3s):** [Raw opening visual] | Audio: [Simple, direct hook — like talking to a friend]
+- **Beat 2 (3-8s):** [Real moment/reaction] | Audio: [Natural conversation or observation]
+- **Beat 3 (8-18s):** [Genuine progression — include imperfect moments] | Audio: [Real dialogue, not voiceover]
+- **Beat 4 (18-25s):** [Payoff/reveal/surprise] | Audio: [Authentic reaction]
+- **CTA (25-30s):** [Text overlay] | Audio: [Engagement-driving question, NOT "join us"]
+- **Retention Interrupts:** [List 3-4 specific pattern interrupts: zoom cuts, text pops, reaction inserts, split screens]
+- **Shareability Factor:** [Why someone would send this to a friend]`;
   }
   if (agentId === 4) {
-    const locHooks = loc ? `LOCATION RULE: At least 1 hook per script MUST reference gathering at "${loc}".` : "";
-    return `You are Agent 04 — Hook Generator for @usknagpur (Urban Sketchers Nagpur).
+    const locHooks = loc ? `LOCATION RULE: At least 1 hook per script should naturally reference "${loc}" — but keep it casual, not forced.` : "";
+    return `You are Agent 04 — Hook & CTA Generator for @usknagpur (Urban Sketchers Nagpur).
 ${context}
 ${locNote}
 
@@ -277,68 +342,138 @@ SCRIPTS FROM AGENT 03:
 ${outputs[2] || ""}
 ${locHooks}
 
-TASK: For EACH of the 3 scripts, generate exactly 2 scroll-stopping hooks.
-CRITICAL: First 3 words must create tension, curiosity, or a sense of belonging. Never start with "I", "Are you", "Do you", "Hey". Focus on lowering the barrier to entry for beginners or highlighting the diverse community.
+TASK: For EACH of the 3 scripts, generate exactly 3 scroll-stopping hooks + 2 engagement CTAs.
 
-### Hooks for Script 1
-1. **[Pattern Name]:** "[Hook - max 15 words]"
-2. **[Pattern Name]:** "[Hook - max 15 words]"
+HOOK RULES (CRITICAL — READ CAREFULLY):
+- Hooks must be SIMPLE, DIRECT, and HUMAN — like something you'd say to a friend.
+- Must grab attention within 1 SECOND. No buildup.
+- Never start with "I", "Are you", "Do you", "Hey".
+- ABSOLUTELY NO poetic, dramatic, or "creative agency" style hooks.
 
-### Hooks for Script 2
-1. **[Pattern Name]:** "[Hook - max 15 words]"
-2. **[Pattern Name]:** "[Hook - max 15 words]"
+BANNED HOOK STYLES (never use these patterns):
+❌ "Five strangers, one sunset, different perspectives…"
+❌ "What happens when creativity meets chaos…"
+❌ "In a city where art lives on every corner…"
+❌ Any hook that sounds like a movie trailer
 
-### Hooks for Script 3
-1. **[Pattern Name]:** "[Hook - max 15 words]"
-2. **[Pattern Name]:** "[Hook - max 15 words]"`;
+GOOD HOOK EXAMPLES (match this energy):
+✅ "This uncle has never drawn before"
+✅ "We stopped random people at Futala"
+✅ "Everyone drew the same thing differently"
+✅ "This engineer sketches VERY differently"
+✅ "She thought she couldn't draw…"
+✅ "Nobody expected THIS sketch"
+✅ "His first drawing in 30 years"
+
+CTA RULES:
+- NEVER use generic CTAs like "Join us Sundays" or "Come sketch with us"
+- CTAs must drive comments, shares, saves, and participation.
+
+GOOD CTA EXAMPLES:
+✅ "Would you try this?"
+✅ "Tag someone who says they can't draw"
+✅ "Which sketch is your favorite?"
+✅ "What would YOUR profession sketch first?"
+✅ "Should we invite more strangers?"
+
+### Script 1: [Title]
+**Hooks:**
+1. **[Pattern]:** "[Hook - max 12 words, simple and direct]"
+2. **[Pattern]:** "[Hook - max 12 words, simple and direct]"
+3. **[Pattern]:** "[Hook - max 12 words, simple and direct]"
+**CTAs:**
+1. "[Engagement-driving CTA]"
+2. "[Engagement-driving CTA]"
+
+### Script 2: [Title]
+**Hooks:**
+1. **[Pattern]:** "[Hook - max 12 words, simple and direct]"
+2. **[Pattern]:** "[Hook - max 12 words, simple and direct]"
+3. **[Pattern]:** "[Hook - max 12 words, simple and direct]"
+**CTAs:**
+1. "[Engagement-driving CTA]"
+2. "[Engagement-driving CTA]"
+
+### Script 3: [Title]
+**Hooks:**
+1. **[Pattern]:** "[Hook - max 12 words, simple and direct]"
+2. **[Pattern]:** "[Hook - max 12 words, simple and direct]"
+3. **[Pattern]:** "[Hook - max 12 words, simple and direct]"
+**CTAs:**
+1. "[Engagement-driving CTA]"
+2. "[Engagement-driving CTA]"`;
   }
   if (agentId === 5) {
     return `You are Agent 05 — Production Director for @usknagpur (Urban Sketchers Nagpur).
-${CREATOR_CONTEXT}
+${context}
 
 SCRIPTS FROM AGENT 03:
 ${outputs[2] || ""}
 
-TASK: Concise Recording Guide. You are the expert director—decide exactly what shots and audio the creator needs to capture to make these scripts work perfectly.
+TASK: RAW-FIRST Recording Guide. You are a documentary-style director — your job is to capture AUTHENTIC moments, not produce a commercial.
+
+CRITICAL FILMING PHILOSOPHY:
+- Film like a DOCUMENTARY, not a commercial. Capture what's happening, don't stage it.
+- Prioritize REACTIONS, CONVERSATIONS, and REAL MOMENTS over perfect B-roll.
+- Imperfection is a feature: shaky cam during excitement = good. Overly smooth gimbal = feels fake.
+- Always capture the PERSON, not just the art. Faces, expressions, body language > sketch close-ups.
 
 ### Master Shot List
-- **[Shot/Element Type]:** [How to film it]
-- **[Shot/Element Type]:** [How to film it]
+For each shot, specify: what to capture, how to film it, and what AUTHENTIC MOMENT to look for.
+- **[Shot Type]:** [How to film] — [What real moment to watch for]
+
+### Raw Moments to Capture (DON'T MISS THESE)
+List 5-6 specific spontaneous moments the filmer should watch for and capture:
+- Awkward first attempts
+- Genuine reactions when seeing others' work
+- Real conversations between strangers
+- Funny fails or unexpected moments
+- Nervous beginners warming up
+- Inside jokes or community banter
 
 ### Script-Specific Needs
-- **Script 1:** [Specific props/lighting/camera/people needed]
-- **Script 2:** [Specific props/lighting/camera/people needed]
-- **Script 3:** [Specific props/lighting/camera/people needed]
+- **Script 1:** [People needed, location setup, what genuine moments to provoke/capture]
+- **Script 2:** [People needed, location setup, what genuine moments to provoke/capture]
+- **Script 3:** [People needed, location setup, what genuine moments to provoke/capture]
 
-### AI Storyboard Prompts
-Generate 3 highly detailed image generation prompts (for Midjourney/DALL-E) that visually describe the most cinematic shot from each script. Format them as:
-- **Storyboard 1:** "A wide cinematic shot of..."
-- **Storyboard 2:** "A close-up over-the-shoulder shot of..."
-- **Storyboard 3:** "A beautiful time-lapse setup showing..."
+### Retention Editing Guide
+Specify exact pattern interrupts for each script to maintain viewer attention:
+- When to cut (every 2-3 seconds)
+- Where to add: reaction cuts, zoom cuts, text overlays, timer countdowns, split screens, reveal moments
+- Music/sound effect cues for energy shifts
+
+### Authenticity Checklist (Pre-Publish Review)
+Before posting, verify:
+- [ ] Does this feel like a real moment or a staged ad?
+- [ ] Are there at least 2 imperfect/raw moments visible?
+- [ ] Can you see real human expressions and reactions?
+- [ ] Is the hook simple and direct (not poetic)?
+- [ ] Is the CTA engagement-driving (not generic "join us")?
+- [ ] Would someone share this with a friend? Why?
 
 ### Common Filming Mistakes to Avoid
-- [Mistake 1]
-- [Mistake 2]
-- [Mistake 3]`;
+- [Mistake 1 — related to over-production]
+- [Mistake 2 — related to missing authentic moments]
+- [Mistake 3 — related to retention/editing]`;
   }
   return "";
 };
 
 /* ─── AGENT META ──────────────────────────────────────────────────── */
 const AGENT_META = [
-  { id: 1, name: "Content Scout",     desc: "Trend research across YouTube & Instagram", icon: Search },
-  { id: 2, name: "Validation Engine", desc: "Scoring, clustering & topic selection",      icon: BrainCircuit },
-  { id: 3, name: "Script Writer",     desc: "3 premium beat-sheet scripts",              icon: PenTool },
-  { id: 4, name: "Hook Generator",    desc: "6 scroll-stopping hooks",                  icon: MessageSquare },
-  { id: 5, name: "Production Dir.",   desc: "Shot list & recording guide",              icon: Video },
+  { id: 1, name: "Content Scout",     desc: "Authentic content ideas ranked by shareability", icon: Search },
+  { id: 2, name: "Validation Engine", desc: "Scoring authenticity, shareability & growth",     icon: BrainCircuit },
+  { id: 3, name: "Script Writer",     desc: "3 raw, documentary-style scripts",              icon: PenTool },
+  { id: 4, name: "Hook & CTA Gen",    desc: "Simple hooks + engagement CTAs",                icon: MessageSquare },
+  { id: 5, name: "Production Dir.",   desc: "Raw-first filming & retention guide",           icon: Video },
 ];
 
 const AGENT_3D_LABELS = {
-  1: { name: "Scanning Trends", desc: "Searching YouTube & Instagram for top-performing content..." },
-  2: { name: "Validating Data", desc: "Scoring reach, engagement, and save-intent signals..." },
-  3: { name: "Writing Scripts", desc: "Drafting 3 distinct premium beat-sheet concepts..." },
-  4: { name: "Generating Hooks", desc: "Crafting scroll-stopping opening lines..." },
-  5: { name: "Planning Production", desc: "Building your shot list and recording guide..." },
+  1: { name: "Scanning Trends", desc: "Finding authentic, shareable content patterns..." },
+  2: { name: "Validating Ideas", desc: "Scoring by authenticity, shareability & growth..." },
+  3: { name: "Writing Scripts", desc: "Drafting raw, documentary-style scripts with real moments..." },
+  4: { name: "Generating Hooks", desc: "Crafting simple, direct hooks that grab in 1 second..." },
+  5: { name: "Planning Production", desc: "Building raw-first filming guide with retention edits..." },
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
