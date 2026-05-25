@@ -652,8 +652,9 @@ const AGENT_3D_LABELS = {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function runAgent({ agentId, niche, location, skillLevel, eventFocus, outputs, onRetry }) {
-  const prompt = buildPrompt(agentId, niche, location, skillLevel, eventFocus, outputs);
-  const body = { model: "claude-sonnet-4-20250514", max_tokens: 1500, messages: [{ role: "user", content: prompt }] };
+  const seed = Math.random().toString(36).substring(7);
+  const prompt = buildPrompt(agentId, niche, location, skillLevel, eventFocus, outputs) + `\n\n[SYSTEM SEED: ${seed} - Ensure you take uniquely different creative angles than standard generations.]`;
+  const body = { model: "claude-sonnet-4-20250514", max_tokens: 1500, temperature: 0.9, messages: [{ role: "user", content: prompt }] };
 
   for (let attempt = 0; attempt < 3; attempt++) {
     if (attempt > 0) { onRetry(attempt); await sleep(1200 * attempt); }
