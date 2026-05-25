@@ -169,7 +169,7 @@ function inlineFormat(text) {
 }
 
 /* ─── PROMPTS ─────────────────────────────────────────────────────── */
-const CREATOR_CONTEXT = (skill, focus) => `
+const CREATOR_CONTEXT = (skill, focus, loreContext) => `
 ACCOUNT: @usknagpur — Urban Sketchers Nagpur | 3,825 followers | ~3,500 avg reel views
 COMMUNITY CORE: A meetup community where people of all professions (not just professional artists) come together to sketch live on location using any medium.
 EVENT FOCUS: ${focus}.
@@ -178,36 +178,41 @@ MAIN IDEA: Live sketching, connecting with diverse people, and understanding dif
 GOAL: Break the follower bubble, grow non-follower reach, and encourage more locals to join the meetups. City: Nagpur, India.
 
 BRAND IDENTITY: "Nagpur's most welcoming creative community" — Anyone can sketch. Art for everyone. Creativity without intimidation.
+${loreContext}
 
 ═══════════════════════════════════════════════════════════
 GLOBAL MASTER RULES (APPLY TO EVERYTHING YOU GENERATE)
 ═══════════════════════════════════════════════════════════
 
+RULE 1: THE ELITE AUTHENTICITY RULE
+The audience should never feel: "This was created for content."
+The audience should feel: "This happened naturally and someone happened to capture it."
+Authenticity beats perfection. 
+
+RULE 2: TIKTOK/REELS-NATIVE BEHAVIOR
+Think like: TikTok creators, meme page admins, documentary creators.
+NOT: filmmakers, ad agencies, brand strategists.
+The content should feel: casual, fast, real, socially aware, naturally entertaining.
+
+RULE 3: PLATFORM PACING OPTIMIZATION
+Think in: clips, moments, reactions, loops, replay moments.
+NOT: scenes, acts, cinematic structure.
+Every moment should: visually communicate instantly, work without sound, be understandable in under 1 second.
+
+RULE 4: REDUCE STRATEGIST LANGUAGE
+Outputs should feel: instinctive, creator-native, socially aware.
+NOT: analytical, marketing-heavy, strategy presentation style.
+Avoid over-explaining WHY content works. Focus on: how the content FEELS.
+
+RULE 5: HUMAN REACTION PRIORITY
+The most important thing in every reel is: human reaction.
+Not: the sketch, the challenge, the concept, the location.
+Prioritize: expressions, pauses, reactions, nervousness, confusion, laughter, surprise, pride. People connect to people first.
+
 CORE SYSTEM SHIFT:
 We are NOT creating beautiful content. We are creating RELATABLE SOCIAL INTERACTIONS people want to SHARE.
 The goal is NOT to make viewers admire the content.
 The goal is to make viewers: comment, share, tag friends, relate emotionally, imagine themselves participating.
-
-SOCIAL-FIRST THINKING:
-Think like an Instagram/TikTok-native creator, NOT a creative agency strategist.
-Prioritize: comment bait, shareability, recognizable situations, identity-based humor, awkwardness, chaotic energy, replay value, human reactions, relatable failures.
-Avoid: over-produced storytelling, cinematic motivational energy, artificial emotional depth, scripted inspirational moments.
-
-AUTHENTICITY RULE:
-Content should feel like: real people being filmed naturally, spontaneous interactions, authentic community moments.
-NOT: a commercial, a brand campaign, a short film.
-
-REAL HUMAN BEHAVIOR:
-People should: interrupt themselves, laugh awkwardly, make mistakes, hesitate, react naturally, speak imperfectly.
-Avoid: polished dialogue, motivational speech patterns, unrealistic emotional scripting.
-
-SHAREABILITY PRIORITY:
-Prioritize content people would: send to friends, tag others in, relate to instantly, comment on emotionally.
-High-shareability = humor + identity + comparison + chaos + surprise + awkwardness + relatable failures.
-
-CONTENT MIX: 40% Relatable/Fun | 30% Community/Emotional | 20% Artistic/Cinematic | 10% Educational.
-
-HUMAN PERSONALITY: Build familiarity through recurring members, recognizable faces, inside jokes, community energy.
 
 RECURRING COMMUNITY PERSONALITIES:
 - The shy beginner — nervous but improving
@@ -230,11 +235,12 @@ People share: PEOPLE, PERSONALITY, RELATABILITY, CHAOS, HUMAN MOMENTS — NOT pr
 The audience should feel: "these people are real", "this looks fun", "I could join this", "this reminds me of my friends."
 `;
 
-const buildPrompt = (agentId, niche, location, skillLevel, eventFocus, outputs) => {
+const buildPrompt = (agentId, niche, location, skillLevel, eventFocus, lore, outputs) => {
   const currentYear = new Date().getFullYear();
   const loc = location ? location.trim() : "";
   const locNote = loc ? `LOCATION CONTEXT: The chosen location is "${loc}". You must infer the atmosphere, visual traits, and cultural vibe of this specific place. Tailor all your ideas, script concepts, and shot lists directly to the unique characteristics of this location.` : "";
-  const context = CREATOR_CONTEXT(skillLevel, eventFocus);
+  const loreContext = lore ? `\nCOMMUNITY LORE & INSIDE JOKES:\n${lore}\n` : "";
+  const context = CREATOR_CONTEXT(skillLevel, eventFocus, loreContext);
 
   if (agentId === 1) {
     const locSearch = loc ? `Since the location is "${loc}", suggest content angles that leverage the unique human interactions, cultural quirks, and spontaneous moments possible at this place — NOT just its visual beauty.` : "";
@@ -250,8 +256,14 @@ CRITICAL RULES:
 - Prioritize: comment bait, shareability, recognizable situations, identity-based humor, awkwardness, chaotic energy, replay value.
 - NEVER suggest ideas that feel like: advertisements, brand campaigns, cinematic short films, or motivational content.
 
-SIMPLICITY FILTER:
-Every content idea must be instantly understandable. If someone cannot understand the reel concept in 1 second / one sentence — the idea is too complicated. Kill it.
+ONE-IDEA PER REEL RULE:
+Each reel should revolve around ONE dominant emotional idea (e.g. chaos, awkwardness, comparison, confidence, confusion, quiet pride). Avoid multiple emotional directions, too many punchlines, or excessive scene changes. Simple > Dense.
+
+QUIET HUMAN MOMENTS SYSTEM:
+Not every reel should be high-energy chaos. Some content should feel quiet, observational, intimate, reflective, or emotionally simple (e.g. someone erasing repeatedly, two strangers sketching silently together).
+
+COMMUNITY WARMTH SYSTEM:
+Balance comparison/humor content with warmth, encouragement, vulnerability, and support (e.g. someone helping a beginner, sharing sketchbooks, group laughter). The audience should feel: "I want to be there."
 
 CONTENT FATIGUE PREVENTION (CRITICAL):
 Avoid generating the same emotional format repeatedly.
@@ -259,18 +271,14 @@ LIMIT these to MAXIMUM 1 idea each:
 - "stranger challenge"
 - "beginner transformation"
 - "heartwarming reveal"
-- "emotional growth story"
-INSTEAD, prioritize: humor, chaos, awkwardness, comparison, identity, personality clashes, relatable failures, funny observations, public interactions.
-
-INTERNET CULTURE AWARENESS:
-Focus on: meme behavior, reel psychology, comment potential, replayability, "tag your friend" energy, highly recognizable situations.
-Think: what would blow up on Instagram Explore today in ${currentYear}, NOT what would win a film festival. Leverage current ${currentYear} audio trends, editing styles, and internet humor.
+INSTEAD, prioritize: humor, chaos, awkwardness, comparison, identity, personality clashes, funny observations, quiet human connection.
 
 CONTENT MIX (MANDATORY):
-- 40% RELATABLE / FUN: sketch fails, funny public reactions, chaotic moments, "guess who drew this", artist struggles, expectations vs reality, personality clashes
-- 30% COMMUNITY / EMOTIONAL: beginner stories, first meetup experiences, community moments (but keep these RAW, not cinematic)
-- 20% ARTISTIC / CINEMATIC: timelapses, sketch reveals, location aesthetics
-- 10% EDUCATIONAL: beginner tips, supplies, how to start sketching
+- 30% RELATABLE / FUN: sketch fails, funny public reactions, chaotic moments, "guess who drew this"
+- 30% COMMUNITY WARMTH: beginner stories, helping hands, group laughter, shared sketchbooks
+- 20% QUIET OBSERVATIONAL: silent sketching moments, intimate artistic focus, quiet pride
+- 10% ARTISTIC / CINEMATIC: timelapses, location aesthetics
+- 10% EDUCATIONAL: beginner tips, supplies
 ${locSearch}
 
 Be specific — reference real creator styles, actual content formats, and concrete title patterns.
@@ -396,7 +404,15 @@ CRITICAL: DO NOT USE BEAT-SHEET / SCREENPLAY FORMAT
 ═══════════════════════════════════════════════════
 DO NOT write: "Beat 1", "Beat 2", "Beat 3" — this creates over-structured, cinematic, commercial energy.
 
-INSTEAD USE: MOMENT FLOW FORMAT
+DO NOT write: "Beat 1", "Beat 2", "Beat 3" — this creates over-structured, cinematic, commercial energy.
+
+INSTRUCTIONS FOR SCRIPT WRITING:
+1. NATURAL HUMOR: Humor should emerge naturally from timing, reactions, awkwardness, and misunderstandings. Avoid scripted punchlines, meme dialogue, or overly clever lines. If a joke sounds "written for a reel", simplify it. Funniest moments must feel accidental.
+2. LESS PERFORMANCE, MORE OBSERVATION: Film and write like you are observing real life happening. Avoid exaggerated reactions, over-acting, "content creator energy", or forced enthusiasm. Natural reactions > performed reactions.
+3. SCROLL-STOPPING VISUAL THINKING: Every reel must contain at least ONE instantly recognizable visual moment (e.g. ruler measuring coffee cup, completely filled with eraser dust, 6 wildly different sketches side-by-side). Think visually first.
+4. ONE-IDEA RULE: Focus on ONE dominant emotional idea per reel. Simple > Dense.
+
+MOMENT FLOW FORMAT:
 Describe the reel like footage ALREADY CAPTURED — real moments unfolding naturally, casual social media clips.
 Write like a creator describing what they filmed, NOT a director planning scenes.
 
@@ -404,21 +420,19 @@ DIALOGUE RULES:
 - Dialogue should be: messy, interrupted, casual, human.
 - People should: laugh awkwardly, hesitate, say simple things, react naturally.
 - NEVER write: polished motivational dialogue, cinematic emotional narration, inspirational speeches.
-- If any line sounds like it could be in a Nike ad — DELETE IT.
 
 RETENTION RULES:
 - The reel should feel: fast, reactive, internet-native. NOT slow cinematic storytelling.
-- Include: reaction moments, awkward pauses, funny interruptions, zoom moments, quick comparisons, unexpected reactions.
+- Include: reaction moments, awkward pauses, funny interruptions, zoom moments, quick comparisons.
 - Pattern interrupts every 2-3 seconds.
 
 RAWNESS RULES:
 - Do NOT optimize every moment for beauty.
 - Include: unfinished sketches, awkward camera movement, messy tables, funny mistakes, imperfect reactions.
-- Imperfection builds authenticity. Shaky cam during excitement = GOOD.
 
 SCRIPT VARIETY (each script = DIFFERENT content pillar):
 - Script 1: Relatable/Fun (fails, chaos, comparisons, humor)
-- Script 2: Community/Human (real person, genuine interaction, personality)
+- Script 2: Community Warmth / Quiet Moments (real person, genuine interaction, vulnerability, silent connection)
 - Script 3: Choose from remaining (Public Interaction, Educational, or Artistic)
 
 ${locGround}
@@ -427,7 +441,9 @@ For EACH of the 3 scripts, output this MOMENT FLOW format:
 ### Script [1/2/3]: [Simple, Direct Title — like an Instagram caption]
 - **Category:** [Fun/Community/Art/Edu/Public Interaction]
 - **1-Second Concept:** [One sentence explaining the whole reel — if this is complicated, simplify]
-- **Featured Person:** [Recurring personality — the uncle/engineer/shy beginner/perfectionist/chaotic artist]
+- **Dominant Emotion:** [e.g. awkwardness, confidence, confusion, quiet pride]
+- **Visual Hook:** [The ONE instantly recognizable visual moment]
+- **Featured Person:** [Recurring personality or lore character]
 - **Vibe:** [e.g. Chaotic-fun, Awkward-wholesome, Casually-educational — NOT "cinematic" or "inspiring"]
 
 **Moment Flow:**
@@ -560,48 +576,45 @@ TASK: Social-first filming & content extraction guide. You are a documentary-sty
 ═══════════════════════════════════════════════════
 SOCIAL-FIRST FILMING PHILOSOPHY
 ═══════════════════════════════════════════════════
-- Film for REACTIONS, EXPRESSIONS, AWKWARDNESS, CONVERSATIONS, COMPARISON MOMENTS — not just beautiful sketch shots.
-- Capture the PERSON, not just the art. Faces > sketches. Expressions > aesthetics.
+- LESS PERFORMANCE, MORE OBSERVATION: Film like you are observing real life. No forced enthusiasm.
+- QUIET MOMENTS: Capture calmness, intimacy, breathing space (e.g. staring at an unfinished page, someone erasing repeatedly, two strangers sketching silently).
+- HUMAN REACTION PRIORITY: The most important thing is human reaction (expressions, pauses). Faces > sketches.
+- VISUAL THINKING: Ensure you capture highly recognizable visual oddities (ruler measuring a coffee cup, tea perfectionist tools).
 - Imperfection is a FEATURE: shaky cam during excitement = good. Overly smooth gimbal = feels fake.
-- Raw footage of people laughing, confused, failing, reacting is often MORE VALUABLE than cinematic footage.
 
 ### Content Extraction Plan (From ONE Meetup)
 From a single meetup session, generate content for:
 - **5 Reel Ideas** — [brief concept for each]
 - **3 Story Sequences** — [what to post as Instagram stories]
 - **2 Carousel Concepts** — [before/after, comparison, or educational]
-- **1 Community Post** — [text post that builds connection]
-- **1 Funny Behind-the-Scenes Clip** — [the chaos, the mistakes, the real stuff]
-- **1 Human Moment Clip** — [genuine interaction worth sharing]
-- **1 Highly Shareable Clip** — [designed for maximum forwards]
-- **1 Emotional Community Clip** — [authentic, not forced]
+- **1 Quiet Observational Clip** — [intimate, breathing space, no chaos]
+- **1 Funny Behind-the-Scenes Clip** — [accidental humor, real stuff]
+- **1 Visual Hook Clip** — [weird or unique visual setup]
 
-### Community Personality Capture Plan
-Actively capture these recurring personalities (or find people who match):
+### Community Personality & Lore Capture Plan
+Actively capture the recurring personalities and "Community Lore" traditions:
 - **The funny member** — always has commentary, capture their reactions to others' work
 - **The shy beginner** — nervousness, first attempts, gradual warming up
 - **The perfectionist** — taking forever, close-ups of detail work, others waiting
 - **The engineer** — methodical approach, surprising results
 - **The uncle** — unexpected skill or hilarious attempts
-- **The chaotic sketcher** — fast, messy, entertaining process
 Film each person for at least 30 seconds of raw footage — their reactions, conversations, and process.
 
 ### Raw Footage Priority List
 Capture these BEFORE anything else (they disappear fast):
-1. Shaky excitement moments when something unexpected happens
-2. Messy tables and scattered art supplies
-3. Unfinished work and in-progress sketches
-4. People laughing at their own attempts
-5. Confusion when given a challenge
+1. Silent, intimate moments of deep focus (Quiet Moments)
+2. Sudden, genuine human reactions and expressions (Reaction Priority)
+3. Shaky excitement moments when something unexpected happens
+4. Messy tables and highly unique visual setups (Visual Hooks)
+5. Unfinished work and in-progress sketches
 6. Real conversations between strangers meeting for the first time
-7. Accidental funny moments
-8. The moment someone sees their neighbor's sketch for the first time
+7. Accidental funny moments, not performed
 
 ### Script-Specific Filming Needs
 CRITICAL: You MUST provide filming needs for ALL 3 scripts generated by Agent 03. Do not skip any.
-- **Script 1:** [People to capture, spontaneous moments to watch for, reactions to provoke]
-- **Script 2:** [People to capture, spontaneous moments to watch for, reactions to provoke]
-- **Script 3:** [People to capture, spontaneous moments to watch for, reactions to provoke]
+- **Script 1:** [Visual hooks to capture, observational moments, reactions to watch for]
+- **Script 2:** [Visual hooks to capture, observational moments, reactions to watch for]
+- **Script 3:** [Visual hooks to capture, observational moments, reactions to watch for]
 
 ### Retention-First Editing Guide
 Retention matters more than beauty. Every 2-3 seconds include ONE of:
@@ -651,9 +664,9 @@ const AGENT_3D_LABELS = {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function runAgent({ agentId, niche, location, skillLevel, eventFocus, outputs, onRetry }) {
+async function runAgent({ agentId, niche, location, skillLevel, eventFocus, lore, outputs, onRetry }) {
   const seed = Math.random().toString(36).substring(7);
-  const prompt = buildPrompt(agentId, niche, location, skillLevel, eventFocus, outputs) + `\n\n[SYSTEM SEED: ${seed} - Ensure you take uniquely different creative angles than standard generations.]`;
+  const prompt = buildPrompt(agentId, niche, location, skillLevel, eventFocus, lore, outputs) + `\n\n[SYSTEM SEED: ${seed} - Ensure you take uniquely different creative angles than standard generations.]`;
   const body = { model: "claude-sonnet-4-20250514", max_tokens: 1500, temperature: 0.9, messages: [{ role: "user", content: prompt }] };
 
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -755,6 +768,7 @@ function LiveFeed({ agents, outputs }) {
 export default function UrbanSketcher() {
   const [niche, setNiche] = useState("urban sketching");
   const [location, setLocation] = useState("");
+  const [lore, setLore] = useState("");
   const [running, setRunning] = useState(false);
   const [agents, setAgents] = useState(
     AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false }))
@@ -796,7 +810,7 @@ export default function UrbanSketcher() {
       if (i > 0) await sleep(20000);
       setAgent(agentId, { status: "running", retry: 0 });
       try {
-        const text = await runAgent({ agentId, niche, location, skillLevel, eventFocus, outputs: outputsRef.current, onRetry: (n) => setAgent(agentId, { retry: n }) });
+        const text = await runAgent({ agentId, niche, location, skillLevel, eventFocus, lore, outputs: outputsRef.current, onRetry: (n) => setAgent(agentId, { retry: n }) });
         outputsRef.current[i] = text;
         setAgent(agentId, { status: "done", output: text, expanded: true });
       } catch (err) {
@@ -1030,6 +1044,20 @@ export default function UrbanSketcher() {
               <button onClick={runPipeline} disabled={running || !niche.trim()} className={`${styles.runBtn} ${running ? styles.running : ''}`}>
                 {running ? <><Loader2 className={styles.animateSpin} size={15} /> Running...</> : <><Play size={15} /> Generate</>}
               </button>
+            </div>
+
+            {/* Dynamic Community Lore Input */}
+            <div className={styles.loreContainer}>
+              <label htmlFor="lore-input">Community Lore & Inside Jokes (Optional)</label>
+              <textarea 
+                id="lore-input" 
+                value={lore} 
+                onChange={(e) => setLore(e.target.value)} 
+                disabled={running} 
+                placeholder="e.g. 'The uncle who hates expensive coffee', 'Running joke about rulers', 'The chaos of finding a good chair'"
+                className={styles.loreTextarea}
+                rows={2}
+              />
             </div>
 
             {/* Pipeline Timeline */}

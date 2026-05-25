@@ -748,6 +748,34 @@
   width: 60px; height: 60px; opacity: 0.06; pointer-events: none;
 }
 
+/* Lore Container */
+.loreContainer {
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.loreContainer label {
+  font-size: 0.67rem; font-weight: 600; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.loreTextarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border-2);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-1);
+  font-family: 'Outfit', sans-serif; font-size: 0.88rem;
+  transition: all 0.25s var(--ease);
+  resize: vertical;
+}
+.loreTextarea:focus {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.04);
+  outline: none;
+}
+
 /* ═══════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════ */
