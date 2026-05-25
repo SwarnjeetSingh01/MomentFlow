@@ -657,14 +657,16 @@
 /* Table scroll wrapper */
 .tableWrapper {
   width: 100%;
+  max-height: 65vh;
   overflow-x: auto;
+  overflow-y: auto;
   margin: 16px 0;
   border: 1px solid var(--border-2);
   border-radius: var(--radius-md);
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.08) transparent;
 }
-.tableWrapper::-webkit-scrollbar { height: 6px; }
+.tableWrapper::-webkit-scrollbar { height: 6px; width: 6px; }
 .tableWrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
 
 .markdownContent table {
