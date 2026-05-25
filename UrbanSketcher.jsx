@@ -834,11 +834,11 @@ export default function UrbanSketcher() {
 
   const downloadAll = () => {
     const all = outputsRef.current.map((o, i) => o ? `=== AGENT ${i + 1}: ${AGENT_META[i].name} ===\n\n${o}` : "").filter(Boolean).join("\n\n" + "─".repeat(60) + "\n\n");
-    const blob = new Blob([all], { type: 'text/markdown' });
+    const blob = new Blob([all], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `UrbanSketcher-Plan-${new Date().toISOString().split('T')[0]}.md`;
+    a.download = `UrbanSketcher-Plan-${new Date().toISOString().split('T')[0]}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
