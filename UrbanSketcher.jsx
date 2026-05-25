@@ -241,7 +241,7 @@ const buildPrompt = (agentId, niche, location, skillLevel, eventFocus, outputs) 
 ${context}
 ${locNote}
 
-You are an Instagram/TikTok-native content strategist. You think like an internet culture observer, NOT a creative agency. Your job is to find SPECIFIC content ideas that people will SHARE, COMMENT on, and TAG their friends in.
+You are an Instagram/TikTok-native content strategist. You think like an internet culture observer, NOT a creative agency. Your job is to find SPECIFIC content ideas based on the LATEST 2026 SOCIAL MEDIA TRENDS that people will SHARE, COMMENT on, and TAG their friends in.
 
 CRITICAL RULES:
 - Think like a creator scrolling Instagram, NOT a brand strategist in a meeting room.
@@ -263,7 +263,7 @@ INSTEAD, prioritize: humor, chaos, awkwardness, comparison, identity, personalit
 
 INTERNET CULTURE AWARENESS:
 Focus on: meme behavior, reel psychology, comment potential, replayability, "tag your friend" energy, highly recognizable situations.
-Think: what would blow up on Instagram Explore, NOT what would win a film festival.
+Think: what would blow up on Instagram Explore today in 2026, NOT what would win a film festival. Leverage current 2026 audio trends, editing styles, and internet humor.
 
 CONTENT MIX (MANDATORY):
 - 40% RELATABLE / FUN: sketch fails, funny public reactions, chaotic moments, "guess who drew this", artist struggles, expectations vs reality, personality clashes
