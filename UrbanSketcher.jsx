@@ -625,14 +625,7 @@ Before posting, verify:
 - [ ] Is the CTA engagement-driving (creates comments, NOT "join us")?
 - [ ] Would someone share this with a specific friend? Which friend and why?
 - [ ] Does this feature a recognizable community personality?
-- [ ] Is there replay value (something you'd watch twice)?
-
-### Common Mistakes to Avoid
-- ❌ Spending all time on cinematic B-roll while missing authentic reactions
-- ❌ Staging moments instead of capturing natural interactions
-- ❌ Over-editing with smooth transitions when raw cuts feel more authentic
-- ❌ Focusing on the sketch instead of the person sketching
-- ❌ Using motivational background music instead of natural audio + trending sounds`;
+- [ ] Is there replay value (something you'd watch twice)?`;
   }
   return "";
 };
