@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, BrainCircuit, PenTool, MessageSquare, Video,
-  CheckCircle, Copy, RotateCcw, Play, MapPin, 
+  CheckCircle, Copy, RotateCcw, Play, MapPin, Download,
   ChevronDown, ChevronUp, Loader2, Info, AlertCircle, Sparkles, RotateCw, History, X, Clock, Users, Target, LogOut
 } from "lucide-react";
 import styles from "./UrbanSketcher.module.css";
@@ -832,6 +832,19 @@ export default function UrbanSketcher() {
     setTimeout(() => setCopyMsg(""), 2500);
   };
 
+  const downloadAll = () => {
+    const all = outputsRef.current.map((o, i) => o ? `=== AGENT ${i + 1}: ${AGENT_META[i].name} ===\n\n${o}` : "").filter(Boolean).join("\n\n" + "─".repeat(60) + "\n\n");
+    const blob = new Blob([all], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `UrbanSketcher-Plan-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const resetPipeline = () => {
     setAgents(AGENT_META.map((a) => ({ ...a, status: "idle", output: "", error: "", retry: 0, expanded: false })));
     setAllDone(false); outputsRef.current = [];
@@ -1080,7 +1093,8 @@ export default function UrbanSketcher() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={styles.doneBar}>
                   <div className={styles.doneLabel}><CheckCircle size={18} /> Pipeline Complete</div>
                   <div className={styles.doneBtns}>
-                    <button onClick={copyAll} className={`${styles.doneBtn} ${styles.btnPrimary}`}><Copy size={13} /> {copyMsg || "Copy All"}</button>
+                    <button onClick={downloadAll} className={`${styles.doneBtn} ${styles.btnPrimary}`}><Download size={13} /> Download</button>
+                    <button onClick={copyAll} className={`${styles.doneBtn} ${styles.btnSecondary}`}><Copy size={13} /> {copyMsg || "Copy All"}</button>
                     <button onClick={resetPipeline} className={`${styles.doneBtn} ${styles.btnSecondary}`}><RotateCcw size={13} /> Reset</button>
                   </div>
                 </motion.div>
