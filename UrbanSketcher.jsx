@@ -834,11 +834,39 @@ export default function UrbanSketcher() {
 
   const downloadAll = () => {
     const all = outputsRef.current.map((o, i) => o ? `=== AGENT ${i + 1}: ${AGENT_META[i].name} ===\n\n${o}` : "").filter(Boolean).join("\n\n" + "─".repeat(60) + "\n\n");
-    const blob = new Blob([all], { type: 'text/plain' });
+    
+    // Create a self-rendering HTML file with styling
+    const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>UrbanSketcher Plan</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #222; background: #fdfdfd; }
+  h1, h2, h3 { color: #111; margin-top: 1.5em; }
+  table { border-collapse: collapse; width: 100%; margin: 20px 0; font-size: 0.95em; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  th, td { border: 1px solid #e0e0e0; padding: 12px 16px; text-align: left; vertical-align: top; }
+  th { background-color: #f4f4f5; font-weight: 600; color: #333; }
+  tr:nth-child(even) { background-color: #fafafa; }
+  code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+  pre { background: #222; color: #fff; padding: 16px; border-radius: 8px; overflow-x: auto; }
+</style>
+</head>
+<body>
+  <div id="content">Loading plan...</div>
+  <script>
+    const markdown = ${JSON.stringify(all)};
+    document.getElementById('content').innerHTML = marked.parse(markdown);
+  </script>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `UrbanSketcher-Plan-${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `UrbanSketcher-Plan-${new Date().toISOString().split('T')[0]}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
