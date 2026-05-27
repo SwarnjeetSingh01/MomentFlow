@@ -54,8 +54,9 @@
   position: fixed; inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
   pointer-events: none;
-  z-index: 1000;
+  z-index: 0;
   opacity: 0.3;
+  mix-blend-mode: overlay;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -90,7 +91,7 @@
 /* ═══════════════════════════════════════════════════════
    SPLIT SCREEN LAYOUT
    ═══════════════════════════════════════════════════════ */
-.splitScreen { display: flex; height: 100vh; padding-top: 48px; gap: 20px; }
+.splitScreen { display: flex; height: 100vh; gap: 20px; }
 
 /* Auth Header */
 .authHeader {
@@ -791,4 +792,77 @@
   .inputBar { flex-direction: column; align-items: stretch; }
   .runBtn { width: 100%; justify-content: center; }
   .nodeNumber { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   COUNTDOWN TIMER
+   ═══════════════════════════════════════════════════════ */
+.countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-2);
+}
+.countdownNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CANCEL BUTTON
+   ═══════════════════════════════════════════════════════ */
+.cancelBtn {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+  box-shadow: 0 2px 12px rgba(239, 68, 68, 0.25) !important;
+}
+.cancelBtn:hover:not(:disabled) {
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.35) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   RE-RUN BUTTON
+   ═══════════════════════════════════════════════════════ */
+.rerunBtn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-1);
+  padding: 3px 7px;
+  border-radius: 6px;
+  color: var(--text-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-family: 'Outfit', sans-serif;
+}
+.rerunBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--text-3);
+  color: var(--text-1);
+}
+.rerunBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════
+   3D SCENE FALLBACK
+   ═══════════════════════════════════════════════════════ */
+.orbFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-4);
 }

@@ -1,11 +1,14 @@
+import './globals.css';
+
+import { AuthProvider } from '../context/AuthContext';
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import ErrorBoundary from '../components/ErrorBoundary';
+
 export const metadata = {
   title: "MomentFlows — AI Content Intelligence",
   description:
     "5-agent AI pipeline for urban sketching creators.",
 };
-
-import { AuthProvider } from '../context/AuthContext';
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({ children }) {
   return (
@@ -15,8 +18,10 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body style={{ margin: 0, padding: 0, background: '#0a0a0a', overflowX: 'hidden' }}>
-        <AuthProvider>{children}</AuthProvider>
+      <body>
+        <ErrorBoundary>
+          <AuthProvider>{children}</AuthProvider>
+        </ErrorBoundary>
         <SpeedInsights />
       </body>
     </html>
